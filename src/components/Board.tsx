@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import Card from '@/components/Card';
@@ -20,7 +20,18 @@ const Board: React.FC = () => {
   } = useGameStore();
   
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [actionMode, setActionMode] = useState<'play' | 'discard'>('play');
+  
+  // Efecto para robar cartas automáticamente hasta tener 3 en mano
+  useEffect(() => {
+    const fillHand = () => {
+      const maxHandSize = 3;
+      while (hand.length < maxHandSize) {
+        drawCard();
+      }
+    };
+    
+    fillHand();
+  }, [hand.length, drawCard]);
   
   // Manejador para seleccionar una carta
   const handleSelectCard = (card: CardType) => {
@@ -43,6 +54,11 @@ const Board: React.FC = () => {
       
       // Mostramos un mensaje de resultados
       showPlayResult(cardToPlay, newScore);
+      
+      // Automáticamente robamos una carta después de jugar
+      setTimeout(() => {
+        drawCard();
+      }, 300);
     }
   };
 
@@ -60,22 +76,12 @@ const Board: React.FC = () => {
     if (selectedCard) {
       discardCard(selectedCard);
       setSelectedCard(null);
+      
+      // Automáticamente robamos una carta después de descartar
+      setTimeout(() => {
+        drawCard();
+      }, 300);
     }
-  };
-  
-  // Manejador para confirmar acción según el modo
-  const handleConfirmAction = () => {
-    if (actionMode === 'play') {
-      handlePlayCard();
-    } else {
-      handleDiscardCard();
-    }
-  };
-  
-  // Cambiar entre modos de jugar o descartar
-  const toggleActionMode = () => {
-    setActionMode(actionMode === 'play' ? 'discard' : 'play');
-    setSelectedCard(null);
   };
   
   // Manejador para robar una carta
@@ -106,29 +112,23 @@ const Board: React.FC = () => {
   const canDiscardMoreCards = cardsDiscardedThisTurn < maxDiscardsPerTurn;
   
   return (
-    <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
+    <div className="bg-gray-900 p-4 rounded-lg shadow-lg overflow-hidden">
       <h2 className="text-xl font-bold text-white mb-4">Tablero de Desarrollo</h2>
       
       {/* Estadísticas de acciones por turno */}
       <div className="flex justify-between mb-4 bg-gray-800 p-3 rounded-lg">
         <div className="text-center">
-          <div className="text-sm text-blue-400">Cartas jugadas</div>
+          <div className="text-sm text-blue-400">Story Points disponibles</div>
           <div className="font-bold text-white">{cardsPlayedThisTurn}/{maxCardsPerTurn}</div>
         </div>
         <div className="text-center">
-          <div className="text-sm text-red-400">Cartas descartadas</div>
+          <div className="text-sm text-red-400">Espacio en Backlog</div>
           <div className="font-bold text-white">{cardsDiscardedThisTurn}/{maxDiscardsPerTurn}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-sm text-green-400">Modo actual</div>
-          <div className={`font-bold ${actionMode === 'play' ? 'text-blue-400' : 'text-red-400'}`}>
-            {actionMode === 'play' ? 'Jugar' : 'Descartar'}
-          </div>
         </div>
       </div>
       
       {/* Área para las cartas jugadas */}
-      <div className="min-h-[200px] bg-gray-800 rounded-lg p-4 mb-4 flex flex-col items-center justify-center">
+      <div className="min-h-[300px] bg-gray-800 rounded-lg p-6 mb-4 flex flex-col items-center justify-center overflow-visible">
         {selectedCard ? (
           <div className="flex flex-col items-center">
             <div className="mb-4">
@@ -139,21 +139,30 @@ const Board: React.FC = () => {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={handleConfirmAction}
-                disabled={(actionMode === 'play' && !canPlayMoreCards) || (actionMode === 'discard' && !canDiscardMoreCards)}
+                onClick={handlePlayCard}
+                disabled={!canPlayMoreCards}
                 className={`px-4 py-2 rounded-lg font-semibold transition-colors
-                  ${actionMode === 'play' 
-                    ? (canPlayMoreCards ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 cursor-not-allowed') 
-                    : (canDiscardMoreCards ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 cursor-not-allowed')} 
-                  text-white`}
+                  ${canPlayMoreCards 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-gray-600 cursor-not-allowed text-gray-300'}`}
               >
-                {actionMode === 'play' ? 'Jugar Carta' : 'Descartar Carta'}
+                Asignar Story Points
               </button>
               <button
-                onClick={toggleActionMode}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                onClick={handleDiscardCard}
+                disabled={!canDiscardMoreCards}
+                className={`px-4 py-2 rounded-lg font-semibold transition-colors
+                  ${canDiscardMoreCards 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-gray-600 cursor-not-allowed text-gray-300'}`}
               >
-                Cambiar a {actionMode === 'play' ? 'Descartar' : 'Jugar'}
+                Mover al Backlog
+              </button>
+              <button
+                onClick={() => setSelectedCard(null)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Cancelar
               </button>
             </div>
           </div>
@@ -164,7 +173,7 @@ const Board: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="text-lg font-bold text-green-400 mb-2">¡Carta jugada!</div>
+            <div className="text-lg font-bold text-green-400 mb-2">¡Story Points asignados!</div>
             <div className="flex items-center gap-4">
               <Card card={playResult.card} disabled />
               <div className="bg-gray-900 p-4 rounded-lg shadow-md">
@@ -175,9 +184,9 @@ const Board: React.FC = () => {
           </motion.div>
         ) : (
           <div className="text-gray-400 text-center">
-            <p>Selecciona una carta de tu mano para {actionMode === 'play' ? 'jugarla' : 'descartarla'}</p>
+            <p>Selecciona una carta de tu mano para asignar Story Points o mover al Backlog</p>
             {hand.length === 0 && (
-              <p className="mt-2">No tienes cartas en tu mano. Roba cartas para comenzar.</p>
+              <p className="mt-2">No tienes cartas en tu mano.</p>
             )}
           </div>
         )}
@@ -226,7 +235,7 @@ const Board: React.FC = () => {
           onClick={handleEndTurn}
           className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
         >
-          Finalizar Turno
+          Finalizar Sprint
         </button>
         
         <button
@@ -244,7 +253,7 @@ const Board: React.FC = () => {
               transition={{ repeat: Infinity, duration: 1 }}
             />
           )}
-          Tienda {canVisitShop ? '(¡Disponible!)' : '(Completa benchmark)'}
+          Contratar {canVisitShop ? '(¡Disponible!)' : '(Completa benchmark)'}
         </button>
       </div>
     </div>

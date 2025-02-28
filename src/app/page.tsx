@@ -1,93 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
-import Board from '@/components/Board';
 import Resources from '@/components/Resources';
+import Board from '@/components/Board';
 import Shop from '@/components/Shop';
-import ActiveJokers from '@/components/ActiveJokers';
 import GameOver from '@/components/GameOver';
-import { motion } from 'framer-motion';
-
-export default function Home() {
-  const { shopOpen, closeShop, gameOver } = useGameStore();
-  const [showWelcome, setShowWelcome] = useState(true);
-  
-  // Efecto para los logs del juego
-  useEffect(() => {
-    console.log('[LOG] Juego inicializado');
-    return () => {
-      console.log('[LOG] Componente desmontado');
-    };
-  }, []);
-  
-  // Handler para reiniciar el juego
-  const handleRestart = () => {
-    window.location.reload();
-  };
-  
-  // No mostrar la pantalla de bienvenida
-  const handleStartGame = () => {
-    setShowWelcome(false);
-  };
-  
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white p-4">
-      {/* Header */}
-      <header className="max-w-7xl mx-auto mb-6 py-4 border-b border-amber-800/30">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 text-transparent bg-clip-text">
-            Scalatro
-          </h1>
-          <div className="text-sm md:text-base text-amber-400/80">
-            Construye tu imperio de IA
-          </div>
-        </div>
-      </header>
-      
-      {/* Contenido principal */}
-      <div className="max-w-7xl mx-auto mb-16">
-        {showWelcome ? (
-          <WelcomeScreen onStart={handleStartGame} />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Panel izquierdo */}
-            <div className="lg:col-span-8 space-y-6">
-              <Resources />
-              <Board />
-            </div>
-            
-            {/* Panel derecho */}
-            <div className="lg:col-span-4 space-y-6">
-              <ActiveJokers />
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {/* Footer */}
-      <footer className="max-w-7xl mx-auto text-center text-gray-500 text-sm px-4 py-6 border-t border-gray-800">
-        <p>
-          Scalatro - Inspirado en <span className="text-amber-400">Balatro</span> • Adaptado al mundo de la IA • 
-          <button 
-            onClick={() => setShowWelcome(true)}
-            className="ml-2 text-blue-400 hover:underline"
-          >
-            Ver instrucciones
-          </button>
-        </p>
-      </footer>
-      
-      {/* Modales */}
-      {shopOpen && <Shop isOpen={shopOpen} onClose={closeShop} />}
-      {gameOver && <GameOver onRestart={handleRestart} />}
-    </main>
-  );
-}
+import ActiveJokers from '@/components/ActiveJokers';
 
 // Componente de pantalla de bienvenida
-const WelcomeScreen: React.FC<{ onStart: () => void }> = ({ onStart }) => {
-  const { setDifficulty } = useGameStore();
+const WelcomeScreen: React.FC<{ onStartGame: (difficulty: number) => void }> = ({ onStartGame }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'normal' | 'hard'>('normal');
   
   const handleDifficultyChange = (difficulty: 'easy' | 'normal' | 'hard') => {
@@ -101,17 +24,23 @@ const WelcomeScreen: React.FC<{ onStart: () => void }> = ({ onStart }) => {
     } else if (difficulty === 'hard') {
       multiplier = 1.5; // 50% más difícil
     }
-    
-    setDifficulty(multiplier);
   };
   
   const handleStartGame = () => {
-    onStart();
+    let multiplier = 1; // Normal
+    
+    if (selectedDifficulty === 'easy') {
+      multiplier = 0.7; // 30% más fácil
+    } else if (selectedDifficulty === 'hard') {
+      multiplier = 1.5; // 50% más difícil
+    }
+    
+    onStartGame(multiplier);
   };
   
   return (
     <motion.div 
-      className="max-w-4xl mx-auto bg-gray-800/80 backdrop-blur-sm rounded-lg p-8 shadow-2xl border border-amber-700/30"
+      className="max-w-4xl mx-auto bg-gray-800/80 backdrop-blur-sm rounded-lg p-8 shadow-2xl border border-amber-700/30 m-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -155,11 +84,10 @@ const WelcomeScreen: React.FC<{ onStart: () => void }> = ({ onStart }) => {
       <div className="bg-gray-700/50 p-4 rounded-lg mb-10 border border-amber-700/20">
         <h3 className="font-bold text-green-400 mb-2">Cómo jugar:</h3>
         <ul className="list-disc pl-5 text-sm space-y-1 text-gray-300">
-          <li>Roba <strong>hasta 3 cartas</strong> en tu mano</li>
-          <li>Puedes <strong>jugar hasta 2 cartas</strong> por turno</li>
-          <li>Si no te gustan tus cartas, puedes <strong>descartar hasta 2</strong> por turno</li>
+          <li><strong>Story Points disponibles</strong>: Puedes asignar hasta 2 por sprint</li>
+          <li><strong>Backlog</strong>: Puedes mover hasta 2 tareas por sprint</li>
           <li>Usa tus chips y multiplicador para <strong>superar benchmarks</strong></li>
-          <li>Compra jokers en la tienda para <strong>mejorar tu empresa</strong></li>
+          <li>Contrata recursos en la tienda para <strong>mejorar tu empresa</strong></li>
           <li>Gana <strong>cuota de mercado</strong> superando benchmarks</li>
           <li>Pierde si tu <strong>cuota de mercado llega a 0</strong></li>
         </ul>
@@ -220,3 +148,85 @@ const WelcomeScreen: React.FC<{ onStart: () => void }> = ({ onStart }) => {
     </motion.div>
   );
 };
+
+export default function Home() {
+  const { 
+    shopOpen, 
+    closeShop, 
+    gameOver,
+    setDifficulty,
+  } = useGameStore();
+  
+  // Estado para mostrar la pantalla de bienvenida
+  const [showWelcome, setShowWelcome] = useState(true);
+  
+  // Manejador para iniciar el juego
+  const handleStartGame = (selectedDifficulty: number) => {
+    setShowWelcome(false);
+    setDifficulty(selectedDifficulty);
+  };
+  
+  // Manejador para reiniciar el juego
+  const handleRestartGame = () => {
+    setShowWelcome(true);
+  };
+  
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950 text-white">
+      {showWelcome ? (
+        <WelcomeScreen onStartGame={handleStartGame} />
+      ) : (
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-center mb-6">Scalatro: Build Your AI Empire</h1>
+          
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Columna izquierda: Recursos y Mejoras Activas */}
+            <div className="lg:w-1/3 flex flex-col gap-6">
+              {/* Recursos y estadísticas en formato vertical */}
+              <div className="h-auto">
+                <Resources />
+              </div>
+              
+              {/* Mejoras activas (Jokers) */}
+              <div className="h-auto">
+                <ActiveJokers />
+              </div>
+            </div>
+            
+            {/* Columna derecha: Tablero de desarrollo */}
+            <div className="lg:w-2/3">
+              <Board />
+            </div>
+          </div>
+          
+          {/* Modales */}
+          <AnimatePresence>
+            {shopOpen && (
+              <motion.div 
+                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <Shop isOpen={shopOpen} onClose={closeShop} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          <AnimatePresence>
+            {gameOver && (
+              <motion.div 
+                className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 px-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <GameOver onRestart={handleRestartGame} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+    </main>
+  );
+}

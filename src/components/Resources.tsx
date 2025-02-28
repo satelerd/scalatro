@@ -1,132 +1,156 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
+import { getAllBenchmarks } from '@/data/benchmarks';
 
 const Resources: React.FC = () => {
   const { 
     chips, 
     multiplier, 
     score, 
-    marketShare, 
-    money, 
+    money,
+    marketShare,
+    currentBenchmark,
     round,
-    currentBenchmark
+    difficulty,
   } = useGameStore();
   
-  // Calculamos el score actual (chips * multiplier)
-  const currentScore = Math.floor(chips * multiplier);
+  // Obtener todos los benchmarks para mostrar progreso
+  const allBenchmarks = getAllBenchmarks();
   
-  // Verificamos si hemos alcanzado el benchmark
-  const benchmarkMet = currentScore >= currentBenchmark.targetScore;
+  // Calcular el progreso actual hacia el siguiente benchmark
+  const calculateBenchmarkProgress = () => {
+    if (!currentBenchmark) return 100; // Si no hay benchmark, mostrar 100%
+    
+    // Calculamos qué porcentaje del objetivo hemos completado
+    const progress = Math.min(Math.floor((score / currentBenchmark.targetScore) * 100), 100);
+    return progress;
+  };
   
-  // Calcular porcentaje de progreso hacia el benchmark
-  const progressPercent = Math.min(100, Math.floor((currentScore / currentBenchmark.targetScore) * 100));
+  // Verificar si se ha completado el benchmark actual
+  const isBenchmarkCompleted = () => {
+    if (!currentBenchmark) return true;
+    return score >= currentBenchmark.targetScore;
+  };
+  
+  // Estado para la animación de puntuación
+  const [displayScore, setDisplayScore] = useState(score);
+  useEffect(() => {
+    // Actualizar la puntuación con una pequeña animación
+    const difference = score - displayScore;
+    if (difference !== 0) {
+      const step = difference > 0 ? 
+        Math.max(1, Math.ceil(difference / 10)) : 
+        Math.min(-1, Math.floor(difference / 10));
+      
+      const timer = setTimeout(() => {
+        setDisplayScore(prev => prev + step);
+      }, 50);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [score, displayScore]);
+  
+  // Clases CSS condicionales para cuota de mercado
+  const getMarketShareClass = () => {
+    if (marketShare >= 75) return 'text-green-400';
+    if (marketShare >= 50) return 'text-blue-400';
+    if (marketShare >= 25) return 'text-amber-400';
+    return 'text-red-400';
+  };
   
   return (
     <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
       <h2 className="text-xl font-bold text-white mb-4">Recursos y Estadísticas</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Panel izquierdo - Estadísticas principales */}
-        <div className="bg-gray-800 rounded-lg p-3 shadow-md">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-gray-400 text-sm">Ronda</div>
-            <div className="bg-yellow-900/50 px-2 py-1 rounded text-yellow-300 text-sm font-bold">
-              #{round}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="bg-blue-900/50 rounded-lg p-3 text-center">
-              <div className="text-xs text-blue-300 mb-1">Pre-training</div>
-              <div className="text-2xl font-bold text-blue-400">{chips}</div>
-              <div className="text-xs text-blue-300 mt-1">Chips</div>
-            </div>
-            
-            <div className="bg-red-900/50 rounded-lg p-3 text-center">
-              <div className="text-xs text-red-300 mb-1">Test-time</div>
-              <div className="text-2xl font-bold text-red-400">×{multiplier.toFixed(1)}</div>
-              <div className="text-xs text-red-300 mt-1">Multiplicador</div>
-            </div>
-          </div>
-          
-          <div className="bg-purple-900/50 rounded-lg p-3 text-center">
-            <div className="text-xs text-purple-300 mb-1">Puntuación</div>
-            <div className="text-3xl font-bold text-purple-300">
-              {currentScore}
-              <span className="text-sm ml-1">puntos</span>
-            </div>
+      {/* Puntuación y ronda actual */}
+      <div className="mb-4 grid grid-cols-1 gap-3">
+        <div className="bg-gray-800 p-3 rounded-lg">
+          <div className="text-sm text-gray-400 mb-1">Sprint</div>
+          <div className="text-2xl font-bold text-white">{round}</div>
+        </div>
+        
+        <div className="bg-gray-800 p-3 rounded-lg">
+          <div className="text-sm text-gray-400 mb-1">Puntuación</div>
+          <div className="text-2xl font-bold text-white">{displayScore}</div>
+        </div>
+      </div>
+      
+      {/* Chips y multiplicador */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="bg-blue-900/60 p-3 rounded-lg text-center">
+          <div className="text-sm text-blue-300 mb-1">Pre-training</div>
+          <div className="text-xl font-bold text-white">{chips} chips</div>
+        </div>
+        
+        <div className="bg-red-900/60 p-3 rounded-lg text-center">
+          <div className="text-sm text-red-300 mb-1">Test-time</div>
+          <div className="text-xl font-bold text-white">×{multiplier.toFixed(1)}</div>
+        </div>
+      </div>
+      
+      {/* Dinero y cuota de mercado */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="bg-green-900/60 p-3 rounded-lg text-center">
+          <div className="text-sm text-green-300 mb-1">Fondos</div>
+          <div className="text-xl font-bold text-white">${money}</div>
+        </div>
+        
+        <div className="bg-purple-900/60 p-3 rounded-lg text-center">
+          <div className="text-sm text-purple-300 mb-1">Market Share</div>
+          <div className={`text-xl font-bold ${getMarketShareClass()}`}>{marketShare}%</div>
+        </div>
+      </div>
+      
+      {/* Benchmark actual y progreso */}
+      <div className="bg-gray-800 p-3 rounded-lg mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-sm text-purple-300">Actual Benchmark:</div>
+          <div className="text-sm font-bold text-white">
+            {currentBenchmark ? currentBenchmark.name : 'Completados todos'}
           </div>
         </div>
         
-        {/* Panel central - Benchmark actual */}
-        <div className="bg-gray-800 rounded-lg p-3 shadow-md">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-gray-300 text-sm font-semibold">Benchmark Actual</div>
-            <div className="bg-amber-900/50 px-2 py-1 rounded text-amber-300 text-sm font-bold">
-              {benchmarkMet ? '✓ Superado' : 'Pendiente'}
-            </div>
+        {/* Barra de progreso */}
+        <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
+          <motion.div 
+            className="h-full bg-gradient-to-r from-purple-600 to-purple-400"
+            initial={{ width: 0 }}
+            animate={{ width: `${calculateBenchmarkProgress()}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        
+        <div className="flex justify-between items-center mt-1">
+          <div className="text-xs text-gray-400">
+            {score} / {currentBenchmark ? currentBenchmark.targetScore : '-'}
           </div>
-          
-          <div className="mb-3">
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-semibold text-purple-300">{currentBenchmark.name}</div>
-              <div className="text-sm text-gray-400">Meta: {currentBenchmark.targetScore}</div>
-            </div>
-            
-            {/* Barra de progreso */}
-            <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-              <motion.div 
-                className={`h-full ${benchmarkMet ? 'bg-green-500' : 'bg-amber-500'}`}
-                initial={{ width: '0%' }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <div className="text-right text-xs text-gray-400 mt-1">{progressPercent}% completado</div>
-          </div>
-          
-          <div className="bg-green-900/50 rounded-lg p-2 text-center">
-            <div className="text-xs text-green-300 mb-1">Recompensa</div>
-            <div className="flex justify-center items-center">
-              <svg className="w-5 h-5 text-green-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-              <span className="font-bold text-green-300">+{currentBenchmark.marketShareReward}% cuota mercado</span>
-            </div>
+          <div className="text-xs text-gray-400">
+            {isBenchmarkCompleted() ? '¡Completado!' : `${calculateBenchmarkProgress()}%`}
           </div>
         </div>
         
-        {/* Panel derecho - Recursos del jugador */}
-        <div className="bg-gray-800 rounded-lg p-3 shadow-md">
-          <div className="flex justify-between items-center mb-3">
-            <div className="text-gray-300 text-sm font-semibold">Recursos Disponibles</div>
-            <div className="bg-blue-900/50 px-2 py-1 rounded text-blue-300 text-sm font-bold">
-              {marketShare}% mercado
-            </div>
+        {isBenchmarkCompleted() && currentBenchmark && (
+          <div className="mt-2 text-xs text-green-400 flex items-center">
+            <span className="mr-1">✓</span> 
+            ¡Benchmark completado! +{currentBenchmark.marketShareReward}% cuota de mercado
           </div>
-          
-          <div className="flex items-center justify-center mb-3">
-            <div className="bg-amber-900/40 rounded-full p-4 inline-block">
-              <div className="text-3xl font-bold text-yellow-400">
-                ${money}
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gray-900/50 rounded-lg p-2">
-            <div className="text-center text-gray-400 text-sm mb-1">Posición en el mercado</div>
-            <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-red-500 to-green-500"
-                style={{ width: `${marketShare}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <div>Start-up</div>
-              <div>Dominante</div>
-            </div>
-          </div>
+        )}
+      </div>
+      
+      {/* Dificultad actual */}
+      <div className="bg-gray-800 p-3 rounded-lg">
+        <div className="text-sm text-gray-400 mb-1">Dificultad</div>
+        <div className="text-md font-bold">
+          {difficulty <= 0.7 && (
+            <span className="text-green-400">Fácil (×{difficulty.toFixed(1)})</span>
+          )}
+          {difficulty > 0.7 && difficulty < 1.2 && (
+            <span className="text-yellow-400">Normal (×{difficulty.toFixed(1)})</span>
+          )}
+          {difficulty >= 1.2 && (
+            <span className="text-red-400">Difícil (×{difficulty.toFixed(1)})</span>
+          )}
         </div>
       </div>
     </div>

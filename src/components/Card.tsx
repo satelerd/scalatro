@@ -59,6 +59,12 @@ const Card: React.FC<CardProps> = ({
   disabled = false,
   isSelected = false,
 }) => {
+  // Verificar que card no sea undefined
+  if (!card) {
+    console.error('[ERROR] Card component recibió card undefined');
+    return null;
+  }
+
   // Obtenemos el efecto de brillo según la rareza
   const getGlowEffect = (rarity: CardRarity) => {
     switch (rarity) {
@@ -101,7 +107,7 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <motion.div
-      className={`relative w-40 min-w-[160px] h-[220px] rounded-lg overflow-hidden border-2 transition-all 
+      className={`relative w-52 min-w-[208px] h-[280px] rounded-lg overflow-visible border-2 transition-all 
         ${getRarityColor(card.rarity)} 
         ${getGlowEffect(card.rarity)}
         ${isSelected ? 'scale-105 shadow-2xl' : ''}
@@ -147,12 +153,12 @@ const Card: React.FC<CardProps> = ({
       </div>
       
       {/* Contenido de la carta */}
-      <div className="relative h-full flex flex-col z-10 p-2">
+      <div className="relative h-full flex flex-col z-10 p-4">
         {/* Cabecera con nombre e icono */}
         <div className="mb-2">
-          <div className={`${getTypeColor(card.type)} w-full rounded px-2 py-1 flex items-center`}>
+          <div className={`${getTypeColor(card.type)} w-full rounded px-2 py-1.5 flex items-center`}>
             <span className="text-xl mr-1">{getTypeIcon(card.type)}</span>
-            <h3 className="text-sm font-bold text-white truncate flex-1">
+            <h3 className="text-sm font-bold text-white flex-1 line-clamp-2">
               {card.name}
             </h3>
           </div>
@@ -160,7 +166,7 @@ const Card: React.FC<CardProps> = ({
         
         {/* Cuerpo con descripción */}
         <div className="flex-1 mb-2">
-          <p className="text-xs text-gray-300 bg-black bg-opacity-20 p-2 rounded min-h-[60px]">
+          <p className="text-xs text-gray-300 bg-black bg-opacity-20 p-2 rounded min-h-[80px] max-h-[80px] overflow-y-auto">
             {card.description}
           </p>
         </div>
@@ -171,14 +177,14 @@ const Card: React.FC<CardProps> = ({
         </div>
         
         {/* Estadísticas */}
-        <div className="grid grid-cols-2 gap-1">
-          <div className={`flex flex-col items-center p-1 rounded ${isSpecialCard && card.baseChips > 10 ? 'bg-blue-900 animate-pulse' : 'bg-blue-800'}`}>
+        <div className="grid grid-cols-2 gap-2">
+          <div className={`flex flex-col items-center p-1.5 rounded ${isSpecialCard && card.baseChips > 10 ? 'bg-blue-900 animate-pulse' : 'bg-blue-800'}`}>
             <span className="text-xs text-blue-300">Chips</span>
-            <span className="font-bold text-white">{card.baseChips}</span>
+            <span className="font-bold text-white text-lg">{card.baseChips}</span>
           </div>
-          <div className={`flex flex-col items-center p-1 rounded ${isSpecialCard && card.baseMultiplier > 2 ? 'bg-red-900 animate-pulse' : 'bg-red-800'}`}>
+          <div className={`flex flex-col items-center p-1.5 rounded ${isSpecialCard && card.baseMultiplier > 2 ? 'bg-red-900 animate-pulse' : 'bg-red-800'}`}>
             <span className="text-xs text-red-300">Mult</span>
-            <span className="font-bold text-white">×{card.baseMultiplier.toFixed(1)}</span>
+            <span className="font-bold text-white text-lg">×{card.baseMultiplier.toFixed(1)}</span>
           </div>
         </div>
       </div>

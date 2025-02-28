@@ -2,292 +2,421 @@ import { Card, CardRarity, CardType } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 // CARTAS DE PRODUCTOS - Generan más chips (poder computacional)
+// Estas cartas añaden Story Points a tu sprint
 const productCards: Card[] = [
   // Cartas comunes
   {
     id: uuidv4(),
-    name: 'MicroLLM',
+    name: "Chatbot Básico",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.COMMON,
+    baseChips: 3,
+    baseMultiplier: 1.0,
+    description: "Un sencillo modelo de chat con capacidades básicas."
+  },
+  {
+    id: uuidv4(),
+    name: "Asistente de Texto",
     type: CardType.PRODUCT,
     rarity: CardRarity.COMMON,
     baseChips: 4,
     baseMultiplier: 1.0,
-    description: 'Un modelo pequeño de lenguaje para tareas básicas de texto.',
+    description: "Asistente que responde preguntas sencillas sobre textos."
   },
   {
     id: uuidv4(),
-    name: 'ImageSynth Basic',
+    name: "Clasificador Simple",
     type: CardType.PRODUCT,
     rarity: CardRarity.COMMON,
     baseChips: 5,
     baseMultiplier: 1.0,
-    description: 'Genera imágenes sencillas a partir de descripciones textuales.',
-  },
-  {
-    id: uuidv4(),
-    name: 'AudioTranscribe',
-    type: CardType.PRODUCT,
-    rarity: CardRarity.COMMON,
-    baseChips: 3,
-    baseMultiplier: 1.1,
-    description: 'Transcribe audio a texto con precisión básica.',
+    description: "Clasifica texto en categorías predefinidas."
   },
   
   // Cartas poco comunes
   {
     id: uuidv4(),
-    name: 'CodeAssistant',
-    type: CardType.PRODUCT,
-    rarity: CardRarity.UNCOMMON,
-    baseChips: 7,
-    baseMultiplier: 1.1,
-    description: 'Asistente de programación que sugiere completaciones de código.',
-  },
-  {
-    id: uuidv4(),
-    name: 'ContextLLM',
+    name: "Generador de Texto",
     type: CardType.PRODUCT,
     rarity: CardRarity.UNCOMMON,
     baseChips: 8,
-    baseMultiplier: 1.0,
-    description: 'Modelo con mayor contexto que retiene información por más tiempo.',
+    baseMultiplier: 1.1,
+    description: "Genera textos creativos basados en prompts."
+  },
+  {
+    id: uuidv4(),
+    name: "Asistente Personal",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 10,
+    baseMultiplier: 1.1,
+    description: "Asistente virtual que ayuda con tareas diarias."
   },
   
   // Cartas raras
   {
     id: uuidv4(),
-    name: 'MultiModal-X',
-    type: CardType.PRODUCT,
-    rarity: CardRarity.RARE,
-    baseChips: 12,
-    baseMultiplier: 1.2,
-    description: 'Procesamiento combinado de texto, imágenes y audio en un solo modelo.',
-  },
-  {
-    id: uuidv4(),
-    name: 'QuantumPredictor',
+    name: "Copiloto de Código",
     type: CardType.PRODUCT,
     rarity: CardRarity.RARE,
     baseChips: 15,
-    baseMultiplier: 1.0,
-    description: 'Utiliza algoritmos cuánticos para mejorar las predicciones de modelos clásicos.',
+    baseMultiplier: 1.2,
+    description: "Asistente de programación que sugiere código."
+  },
+  {
+    id: uuidv4(),
+    name: "Generador de Imágenes",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.RARE,
+    baseChips: 20,
+    baseMultiplier: 1.2,
+    description: "Crea imágenes realistas a partir de descripciones."
   },
   
   // Cartas legendarias
   {
     id: uuidv4(),
-    name: 'SkyNet-GPT',
+    name: "Agente Autónomo",
     type: CardType.PRODUCT,
     rarity: CardRarity.LEGENDARY,
-    baseChips: 25,
-    baseMultiplier: 1.3,
-    description: 'El modelo más avanzado con capacidades de razonamiento casi humanas.',
+    baseChips: 30,
+    baseMultiplier: 1.5,
+    description: "IA que puede realizar tareas complejas sin supervisión."
   },
 ];
 
 // CARTAS DE APIs - Aumentan el multiplicador
+// Estas cartas mejoran la eficiencia de tu equipo
 const apiCards: Card[] = [
   // Cartas comunes
   {
     id: uuidv4(),
-    name: 'REST Endpoints',
+    name: "API de Completado",
     type: CardType.API,
     rarity: CardRarity.COMMON,
     baseChips: 1,
     baseMultiplier: 1.3,
-    description: 'Conjunto de endpoints REST para acceder a funciones básicas de IA.',
+    description: "API básica para completar texto."
   },
   {
     id: uuidv4(),
-    name: 'WebSockets API',
+    name: "API de Resumen",
     type: CardType.API,
     rarity: CardRarity.COMMON,
-    baseChips: 2,
+    baseChips: 1,
     baseMultiplier: 1.4,
-    description: 'Conexiones en tiempo real para respuestas más rápidas.',
+    description: "Resume textos largos automáticamente."
   },
   
   // Cartas poco comunes
   {
     id: uuidv4(),
-    name: 'GraphQL Interface',
+    name: "API de Embeddings",
     type: CardType.API,
     rarity: CardRarity.UNCOMMON,
-    baseChips: 3,
+    baseChips: 2,
     baseMultiplier: 1.7,
-    description: 'API flexible que permite a los clientes solicitar exactamente lo que necesitan.',
+    description: "Convierte texto en vectores para búsqueda semántica."
   },
   {
     id: uuidv4(),
-    name: 'Batch Processing',
+    name: "API de Análisis",
     type: CardType.API,
     rarity: CardRarity.UNCOMMON,
     baseChips: 2,
     baseMultiplier: 1.8,
-    description: 'Procesa grandes volúmenes de solicitudes en lotes para mayor eficiencia.',
+    description: "Analiza sentimiento y extrae información clave."
   },
   
   // Cartas raras
   {
     id: uuidv4(),
-    name: 'Stream Processing',
-    type: CardType.API,
-    rarity: CardRarity.RARE,
-    baseChips: 4,
-    baseMultiplier: 2.2,
-    description: 'Procesamiento continuo de datos en tiempo real para resultados inmediatos.',
-  },
-  {
-    id: uuidv4(),
-    name: 'Serverless Functions',
+    name: "API Multimodal",
     type: CardType.API,
     rarity: CardRarity.RARE,
     baseChips: 3,
-    baseMultiplier: 2.5,
-    description: 'Arquitectura que escala automáticamente según la demanda sin servidores dedicados.',
+    baseMultiplier: 2.2,
+    description: "Integra texto, imágenes y audio en una sola API."
   },
   
   // Cartas legendarias
   {
     id: uuidv4(),
-    name: 'NeuroAPI',
+    name: "API Universal",
     type: CardType.API,
     rarity: CardRarity.LEGENDARY,
     baseChips: 5,
-    baseMultiplier: 3.5,
-    description: 'API neuroadaptativa que evoluciona y se optimiza según los patrones de uso.',
+    baseMultiplier: 3.0,
+    description: "Una API para dominarlas a todas. Compatible con cualquier LLM."
   },
 ];
 
 // CARTAS DE CARACTERÍSTICAS - Equilibran chips y multiplicador
+// Estas cartas añaden funcionalidades a tus productos
 const featureCards: Card[] = [
   // Cartas comunes
   {
     id: uuidv4(),
-    name: 'Chat Básico',
-    type: CardType.FEATURE,
-    rarity: CardRarity.COMMON,
-    baseChips: 3,
-    baseMultiplier: 1.2,
-    description: 'Interfaz de chat simple para interactuar con los modelos de IA.',
-  },
-  {
-    id: uuidv4(),
-    name: 'Filtro Contenido',
+    name: "Moderación Básica",
     type: CardType.FEATURE,
     rarity: CardRarity.COMMON,
     baseChips: 2,
-    baseMultiplier: 1.3,
-    description: 'Sistema básico para detectar y filtrar contenido inapropiado.',
+    baseMultiplier: 1.2,
+    description: "Filtra contenido inapropiado básico."
+  },
+  {
+    id: uuidv4(),
+    name: "Instrucciones Simples",
+    type: CardType.FEATURE,
+    rarity: CardRarity.COMMON,
+    baseChips: 3,
+    baseMultiplier: 1.1,
+    description: "Permite dar instrucciones sencillas al modelo."
   },
   
   // Cartas poco comunes
   {
     id: uuidv4(),
-    name: 'Integración Email',
+    name: "Memoria de Conversación",
     type: CardType.FEATURE,
     rarity: CardRarity.UNCOMMON,
     baseChips: 5,
     baseMultiplier: 1.4,
-    description: 'Permite a la IA leer y responder emails automáticamente.',
+    description: "El modelo recuerda la conversación anterior."
   },
   {
     id: uuidv4(),
-    name: 'Asistente Voz',
+    name: "Conexión a Internet",
     type: CardType.FEATURE,
     rarity: CardRarity.UNCOMMON,
     baseChips: 6,
     baseMultiplier: 1.5,
-    description: 'Interfaz de voz natural para interactuar con los modelos.',
+    description: "Permite al modelo acceder a información actualizada."
   },
   
   // Cartas raras
   {
     id: uuidv4(),
-    name: 'Análisis Avanzado',
+    name: "Personalidad Adaptable",
     type: CardType.FEATURE,
     rarity: CardRarity.RARE,
-    baseChips: 9,
+    baseChips: 10,
     baseMultiplier: 1.8,
-    description: 'Herramientas de análisis profundo de datos con visualizaciones interactivas.',
+    description: "El modelo ajusta su personalidad según el contexto."
   },
   {
     id: uuidv4(),
-    name: 'Agentes Autónomos',
+    name: "Seguridad Avanzada",
     type: CardType.FEATURE,
     rarity: CardRarity.RARE,
     baseChips: 8,
     baseMultiplier: 2.0,
-    description: 'Agentes que realizan tareas complejas sin intervención humana.',
+    description: "Filtros avanzados para prevenir usos maliciosos."
   },
   
   // Cartas legendarias
   {
     id: uuidv4(),
-    name: 'Consciencia Digital',
+    name: "Razonamiento Avanzado",
     type: CardType.FEATURE,
     rarity: CardRarity.LEGENDARY,
     baseChips: 15,
     baseMultiplier: 2.5,
-    description: 'Sistema avanzado de self-awareness que permite adaptación autónoma a nuevos dominios.',
+    description: "El modelo puede razonar paso a paso problemas complejos."
+  },
+];
+
+// CARTAS DE RECURSOS HUMANOS - Aumentan tus Story Points y capacidad de Backlog
+const teamCards: Card[] = [
+  // Desarrolladores - Aumentan Story Points por turno
+  {
+    id: uuidv4(),
+    name: "Dev Junior",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.COMMON,
+    baseChips: 6,
+    baseMultiplier: 1.0,
+    description: "STORY POINTS: Añade +1 Story Point por sprint. Un desarrollador con poca experiencia pero muchas ganas."
+  },
+  {
+    id: uuidv4(),
+    name: "Dev Senior",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 12,
+    baseMultiplier: 1.2,
+    description: "STORY POINTS: Añade +2 Story Points por sprint. Desarrollador con experiencia que produce código de calidad."
+  },
+  {
+    id: uuidv4(),
+    name: "Tech Lead",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.RARE,
+    baseChips: 18,
+    baseMultiplier: 1.5,
+    description: "STORY POINTS: Añade +3 Story Points por sprint. Lidera el equipo técnico y resuelve problemas complejos."
+  },
+  {
+    id: uuidv4(),
+    name: "Full-stack Architect",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.LEGENDARY,
+    baseChips: 25,
+    baseMultiplier: 2.0,
+    description: "STORY POINTS: Añade +4 Story Points por sprint. Experto en todas las tecnologías necesarias para tu producto."
+  },
+  
+  // Product Managers - Aumentan capacidad de Backlog
+  {
+    id: uuidv4(),
+    name: "Product Owner",
+    type: CardType.FEATURE,
+    rarity: CardRarity.COMMON,
+    baseChips: 4,
+    baseMultiplier: 1.3,
+    description: "BACKLOG: Aumenta en +1 tu capacidad de Backlog. Responsable de priorizar características del producto."
+  },
+  {
+    id: uuidv4(),
+    name: "Scrum Master",
+    type: CardType.FEATURE,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 6,
+    baseMultiplier: 1.6,
+    description: "BACKLOG: Aumenta en +2 tu capacidad de Backlog. Facilita las reuniones y elimina impedimentos del equipo."
+  },
+  {
+    id: uuidv4(),
+    name: "Product Manager",
+    type: CardType.FEATURE,
+    rarity: CardRarity.RARE,
+    baseChips: 10,
+    baseMultiplier: 1.9,
+    description: "BACKLOG: Aumenta en +3 tu capacidad de Backlog. Define la visión del producto y coordina con stakeholders."
+  },
+  {
+    id: uuidv4(),
+    name: "CPO (Chief Product Officer)",
+    type: CardType.FEATURE,
+    rarity: CardRarity.LEGENDARY,
+    baseChips: 15,
+    baseMultiplier: 2.4,
+    description: "BACKLOG: Aumenta en +4 tu capacidad de Backlog. Directivo que coordina todos los productos de la empresa."
   },
 ];
 
 // CARTAS ESPECIALES - Con efectos únicos
 const specialCards: Card[] = [
+  // Combo 1: Conjunto de desarrollo - Otorga bonus si tienes un producto, API y feature
   {
     id: uuidv4(),
-    name: 'Bug Crítico',
+    name: "DevOps LLM",
+    type: CardType.FEATURE,
+    rarity: CardRarity.RARE,
+    baseChips: 12,
+    baseMultiplier: 2.2,
+    description: "COMBO: +5 chips extra si tienes un Producto, API y otra Feature en juego."
+  },
+  
+  // Combo 2: Stack completo - Bonus por tener múltiples productos
+  {
+    id: uuidv4(),
+    name: "Suite Empresarial",
     type: CardType.PRODUCT,
     rarity: CardRarity.RARE,
-    baseChips: -5,
-    baseMultiplier: 3.0,
-    description: '¡Un error en tu sistema! Reduce tus chips pero aumenta significativamente el multiplicador.',
+    baseChips: 18,
+    baseMultiplier: 1.5,
+    description: "COMBO: Duplica el multiplicador si tienes otros 2 Productos en juego."
   },
+  
+  // Combo 3: Integración API - Bonus por tener múltiples APIs
   {
     id: uuidv4(),
-    name: 'Overfitting',
+    name: "API Gateway",
     type: CardType.API,
-    rarity: CardRarity.UNCOMMON,
-    baseChips: 20,
-    baseMultiplier: 0.5,
-    description: 'Tu modelo se ajusta demasiado a los datos de entrenamiento. Muchos chips pero bajo multiplicador.',
-  },
-  {
-    id: uuidv4(),
-    name: 'Open Source',
-    type: CardType.FEATURE,
     rarity: CardRarity.RARE,
-    baseChips: 7,
-    baseMultiplier: 1.7,
-    description: 'Liberas tu código. Balance equilibrado entre chips y multiplicador con potencial viral.',
-  },
-  {
-    id: uuidv4(),
-    name: 'Prompt Engineering',
-    type: CardType.FEATURE,
-    rarity: CardRarity.UNCOMMON,
     baseChips: 4,
-    baseMultiplier: 2.0,
-    description: 'Optimizas los prompts para obtener mejores respuestas con los mismos recursos.',
+    baseMultiplier: 2.5,
+    description: "COMBO: +50% a tu multiplicador si tienes otras 2 APIs en juego."
   },
+  
+  // Cartas súper poderosas (legendarias)
   {
     id: uuidv4(),
-    name: 'Hallucination',
+    name: "IA General",
     type: CardType.PRODUCT,
-    rarity: CardRarity.RARE,
-    baseChips: 0,
-    baseMultiplier: 4.0,
-    description: 'Tu modelo inventa información. No genera chips pero tiene un multiplicador enorme.',
+    rarity: CardRarity.LEGENDARY,
+    baseChips: 50,
+    baseMultiplier: 2.0,
+    description: "Una IA que puede resolver cualquier problema intelectual."
   },
   {
     id: uuidv4(),
-    name: 'Fuga Datos',
+    name: "Inferencia Paralela",
     type: CardType.API,
     rarity: CardRarity.LEGENDARY,
-    baseChips: -10,
-    baseMultiplier: 0.5,
-    description: 'Problemas de seguridad en tu API. Efecto negativo fuerte, pero ¿qué pasará después?',
-  }
+    baseChips: 10,
+    baseMultiplier: 4.0,
+    description: "Procesamiento masivamente paralelo para inferencia ultrarrápida."
+  },
+  {
+    id: uuidv4(),
+    name: "Alucinación Zero",
+    type: CardType.FEATURE,
+    rarity: CardRarity.LEGENDARY,
+    baseChips: 25,
+    baseMultiplier: 3.0,
+    description: "Elimina completamente las alucinaciones. Respuestas 100% precisas."
+  },
+  
+  // Combos de equipo
+  {
+    id: uuidv4(),
+    name: "Equipo Ágil",
+    type: CardType.FEATURE,
+    rarity: CardRarity.RARE,
+    baseChips: 15,
+    baseMultiplier: 2.0,
+    description: "COMBO: +2 Story Points y +2 Capacidad de Backlog si tienes al menos 1 Dev y 1 Product Owner en juego."
+  },
+  {
+    id: uuidv4(),
+    name: "Pair Programming",
+    type: CardType.PRODUCT,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 14,
+    baseMultiplier: 1.5,
+    description: "STORY POINTS: Añade +2 Story Points por sprint. Dos devs trabajando juntos producen código de mejor calidad."
+  },
+  {
+    id: uuidv4(),
+    name: "Planning Poker",
+    type: CardType.FEATURE,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 8,
+    baseMultiplier: 1.6,
+    description: "BACKLOG: Aumenta en +2 tu capacidad de Backlog. Técnica para estimar el esfuerzo requerido para cada tarea."
+  },
+  
+  // Easter eggs y cartas divertidas
+  {
+    id: uuidv4(),
+    name: "Café para el Programador",
+    type: CardType.FEATURE,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 7,
+    baseMultiplier: 1.7,
+    description: "¡Cafeína! +1 Story Point por sprint. Energía extra para el equipo que desarrolla los modelos."
+  },
+  {
+    id: uuidv4(),
+    name: "Prompt Engineering 101",
+    type: CardType.FEATURE,
+    rarity: CardRarity.UNCOMMON,
+    baseChips: 5,
+    baseMultiplier: 1.9,
+    description: "Manual básico de ingeniería de prompts. Mejora las instrucciones."
+  },
 ];
 
 // Combinar todas las cartas
@@ -295,89 +424,104 @@ export const allCards: Card[] = [
   ...productCards,
   ...apiCards,
   ...featureCards,
+  ...teamCards,
   ...specialCards,
 ];
 
 // Función para obtener el mazo inicial con una distribución balanceada
 export const getInitialDeck = (): Card[] => {
-  // Creamos un mazo inicial con una mezcla de cartas
-  const initialDeck: Card[] = [];
-  
-  // Añadimos cartas comunes y poco comunes
-  const commonCards = [
-    ...productCards.filter(card => card.rarity === CardRarity.COMMON),
-    ...apiCards.filter(card => card.rarity === CardRarity.COMMON),
-    ...featureCards.filter(card => card.rarity === CardRarity.COMMON),
+  // Combinamos todas las cartas según su tipo
+  const allCards = [
+    ...productCards.slice(0, 4),  // Solo algunas cartas de producto
+    ...apiCards.slice(0, 3),      // Solo algunas cartas de API
+    ...featureCards.slice(0, 3),  // Solo algunas cartas de feature
+    ...teamCards.slice(0, 4),     // Añadimos algunas cartas de equipo
+    ...specialCards.slice(-2),    // Un par de cartas especiales
   ];
   
-  const uncommonCards = [
-    ...productCards.filter(card => card.rarity === CardRarity.UNCOMMON),
-    ...apiCards.filter(card => card.rarity === CardRarity.UNCOMMON),
-    ...featureCards.filter(card => card.rarity === CardRarity.UNCOMMON),
+  // Creamos un mazo aleatorio de 10 cartas
+  const shuffledDeck = [...allCards]
+    .sort(() => Math.random() - 0.5)
+    .map(card => ({
+      ...card,
+      id: uuidv4(), // Aseguramos que cada carta tenga un ID único
+    }));
+  
+  // Añadimos al menos dos cartas especiales poderosas para ayudar al jugador
+  // Seleccionamos cartas legendarias aleatoriamente
+  const legendaryCards = [
+    ...productCards.filter(card => card.rarity === CardRarity.LEGENDARY),
+    ...apiCards.filter(card => card.rarity === CardRarity.LEGENDARY),
+    ...featureCards.filter(card => card.rarity === CardRarity.LEGENDARY),
+    ...teamCards.filter(card => card.rarity === CardRarity.LEGENDARY),
+    ...specialCards.filter(card => card.rarity === CardRarity.LEGENDARY),
   ];
   
-  // Elegimos aleatoriamente cartas para el mazo inicial
-  for (let i = 0; i < 10; i++) {
-    // 70% de probabilidad de cartas comunes, 30% de poco comunes
-    if (Math.random() < 0.7) {
-      const randomCard = commonCards[Math.floor(Math.random() * commonCards.length)];
-      initialDeck.push({...randomCard, id: uuidv4()}); // Clonamos la carta con un nuevo ID
-    } else {
-      const randomCard = uncommonCards[Math.floor(Math.random() * uncommonCards.length)];
-      initialDeck.push({...randomCard, id: uuidv4()}); // Clonamos la carta con un nuevo ID
-    }
-  }
+  // Añadimos 2 cartas legendarias aleatorias
+  const selectedLegendaryCards = legendaryCards
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 2)
+    .map(card => ({
+      ...card,
+      id: uuidv4(),
+    }));
   
-  // Añadimos una carta especial al mazo inicial
-  const randomSpecialCard = specialCards[Math.floor(Math.random() * specialCards.length)];
-  initialDeck.push({...randomSpecialCard, id: uuidv4()});
-  
-  // Barajamos el mazo
-  return initialDeck.sort(() => Math.random() - 0.5);
+  // Combinamos el mazo con las cartas legendarias
+  return [...shuffledDeck, ...selectedLegendaryCards];
 };
 
 // Función para obtener un mazo mejorado en etapas avanzadas del juego
 export const getAdvancedDeck = (round: number): Card[] => {
-  const advancedDeck: Card[] = [];
+  // En rondas avanzadas, añadimos cartas más poderosas
+  const powerLevel = Math.min(Math.floor(round / 2), 5); // Máximo nivel de poder 5
   
-  // Mayor probabilidad de cartas raras y legendarias según la ronda
-  const rareProbability = Math.min(0.3 + (round * 0.05), 0.6); // Máximo 60% para cartas raras
-  const legendaryProbability = Math.min(0.05 + (round * 0.02), 0.2); // Máximo 20% para legendarias
-  
+  // Combinamos todas las cartas disponibles
   const allCards = [
     ...productCards,
     ...apiCards,
     ...featureCards,
-    ...specialCards
+    ...teamCards,
+    ...specialCards,
   ];
   
-  // Creamos un mazo con 12 cartas (más cartas que el inicial)
-  for (let i = 0; i < 12; i++) {
-    let selectedCard;
-    const roll = Math.random();
-    
-    if (roll < legendaryProbability) {
-      // Seleccionamos una carta legendaria
-      const legendaryCards = allCards.filter(card => card.rarity === CardRarity.LEGENDARY);
-      selectedCard = legendaryCards[Math.floor(Math.random() * legendaryCards.length)];
-    } else if (roll < rareProbability) {
-      // Seleccionamos una carta rara
-      const rareCards = allCards.filter(card => card.rarity === CardRarity.RARE);
-      selectedCard = rareCards[Math.floor(Math.random() * rareCards.length)];
-    } else if (roll < rareProbability + 0.4) {
-      // Seleccionamos una carta poco común
-      const uncommonCards = allCards.filter(card => card.rarity === CardRarity.UNCOMMON);
-      selectedCard = uncommonCards[Math.floor(Math.random() * uncommonCards.length)];
-    } else {
-      // Seleccionamos una carta común
-      const commonCards = allCards.filter(card => card.rarity === CardRarity.COMMON);
-      selectedCard = commonCards[Math.floor(Math.random() * commonCards.length)];
-    }
-    
-    // Añadimos la carta al mazo con un nuevo ID
-    advancedDeck.push({...selectedCard, id: uuidv4()});
-  }
+  // Filtramos las cartas según el nivel de poder (rareza)
+  const availableCards = allCards.filter(card => {
+    if (powerLevel >= 5) return true; // Todas las rarezas
+    if (powerLevel >= 3) return card.rarity !== CardRarity.LEGENDARY; // Hasta raras
+    if (powerLevel >= 2) return card.rarity !== CardRarity.LEGENDARY && card.rarity !== CardRarity.RARE; // Hasta poco comunes
+    return card.rarity === CardRarity.COMMON; // Solo comunes
+  });
   
-  // Barajamos el mazo
-  return advancedDeck.sort(() => Math.random() - 0.5);
+  // Seleccionamos 3 cartas aleatorias según el nivel de poder
+  const selectedCards = availableCards
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+    .map(card => {
+      // En niveles de poder altos, potenciamos las cartas
+      let bonusChips = 0;
+      let bonusMultiplier = 1.0;
+      
+      if (powerLevel >= 4) {
+        bonusChips = Math.floor(Math.random() * 10) + 5; // 5-15 chips extra
+        bonusMultiplier = 1.0 + (Math.random() * 0.5); // 1.0-1.5x multiplicador extra
+      } else if (powerLevel >= 2) {
+        bonusChips = Math.floor(Math.random() * 5) + 3; // 3-8 chips extra
+        bonusMultiplier = 1.0 + (Math.random() * 0.3); // 1.0-1.3x multiplicador extra
+      }
+      
+      return {
+        ...card,
+        id: uuidv4(),
+        baseChips: card.baseChips + bonusChips,
+        baseMultiplier: card.baseMultiplier * bonusMultiplier,
+        description: `${card.description} [Mejorada Ronda ${round}]`,
+      };
+    });
+  
+  return selectedCards;
+};
+
+// Exportamos todas las cartas en caso de que se quieran utilizar en otro lugar
+export const getAllCards = () => {
+  return [...productCards, ...apiCards, ...featureCards, ...teamCards, ...specialCards];
 }; 
