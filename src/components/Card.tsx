@@ -14,15 +14,15 @@ interface CardProps {
 const getRarityColor = (rarity: CardRarity) => {
   switch (rarity) {
     case CardRarity.COMMON:
-      return 'border-gray-400 from-gray-800 to-gray-700';
+      return 'border-gray-400 from-gray-700 to-gray-900';
     case CardRarity.UNCOMMON:
-      return 'border-green-500 from-green-900 to-green-800';
+      return 'border-green-500 from-green-700 to-green-900';
     case CardRarity.RARE:
-      return 'border-blue-500 from-blue-900 to-blue-800';
+      return 'border-blue-500 from-blue-700 to-blue-900';
     case CardRarity.LEGENDARY:
-      return 'border-purple-600 from-purple-900 to-purple-800';
+      return 'border-purple-500 from-purple-700 to-purple-900';
     default:
-      return 'border-gray-400 from-gray-800 to-gray-700';
+      return 'border-gray-400 from-gray-700 to-gray-900';
   }
 };
 
@@ -54,6 +54,20 @@ const getTypeIcon = (type: CardTypeEnum) => {
   }
 };
 
+// Obtener descripción del efecto según el tipo de carta
+const getEffectDescription = (type: CardTypeEnum) => {
+  switch (type) {
+    case CardTypeEnum.PRODUCT:
+      return 'Genera chips base';
+    case CardTypeEnum.API:
+      return 'Aumenta multiplicador';
+    case CardTypeEnum.FEATURE:
+      return 'Equilibra chips y mult.';
+    default:
+      return 'Efecto desconocido';
+  }
+};
+
 const Card: React.FC<CardProps> = ({
   card,
   onClick,
@@ -73,27 +87,13 @@ const Card: React.FC<CardProps> = ({
       case CardRarity.COMMON:
         return '';
       case CardRarity.UNCOMMON:
-        return 'shadow-[0_0_7px_rgba(34,197,94,0.5)]';
+        return 'shadow-[0_0_10px_rgba(34,197,94,0.5)]';
       case CardRarity.RARE:
-        return 'shadow-[0_0_10px_rgba(59,130,246,0.6)]';
+        return 'shadow-[0_0_12px_rgba(59,130,246,0.6)]';
       case CardRarity.LEGENDARY:
         return 'shadow-[0_0_15px_rgba(147,51,234,0.7)]';
       default:
         return '';
-    }
-  };
-  
-  // Obtener descripción del efecto según el tipo de carta
-  const getEffectDescription = (type: CardTypeEnum) => {
-    switch (type) {
-      case CardTypeEnum.PRODUCT:
-        return 'Genera chips base';
-      case CardTypeEnum.API:
-        return 'Aumenta multiplicador';
-      case CardTypeEnum.FEATURE:
-        return 'Equilibra chips y mult.';
-      default:
-        return 'Efecto desconocido';
     }
   };
   
@@ -108,31 +108,29 @@ const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <motion.div
-      className={`relative w-52 min-w-[208px] h-[280px] rounded-lg overflow-visible border-2 transition-all 
+    <div
+      className={`relative w-52 min-w-[208px] h-[280px] rounded-xl overflow-visible border-2 transition-all 
         ${getRarityColor(card.rarity)} 
         ${getGlowEffect(card.rarity)}
         ${isSelected ? 'scale-105 shadow-2xl' : ''}
-        ${isDragging ? 'shadow-[0_0_20px_rgba(255,255,255,0.7)] z-50' : ''}
+        ${isDragging ? 'shadow-[0_0_20px_rgba(255,255,255,0.7)]' : ''}
         ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg'}`}
-      whileHover={!disabled ? { scale: 1.05, y: -5 } : {}}
-      whileTap={!disabled ? { scale: 0.98 } : {}}
-      whileDrag={{ rotate: [0, -0.5, 0.5, 0], scale: 1.05 }}
       onClick={handleClick}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       style={{ 
-        zIndex: isDragging ? 9999 : 'auto',
-        transformOrigin: 'center center',
-        cursor: isDragging ? 'grabbing' : (disabled ? 'not-allowed' : 'grab')
+        zIndex: isDragging ? 999 : 'auto',
+        transform: isDragging ? 'scale(1.05)' : 'none',
+        boxShadow: isDragging ? '0 0 20px rgba(255, 255, 255, 0.7)' : undefined
       }}
-      drag={false}
     >
       {/* Fondo de la carta con gradiente */}
-      <div className={`absolute inset-0 bg-gradient-to-b ${getRarityColor(card.rarity)} z-0`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-b ${getRarityColor(card.rarity)} z-0 rounded-xl`}></div>
+      
+      {/* Efecto de brillo superior */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/10 to-transparent z-0 rounded-t-xl"></div>
       
       {/* Efecto de partículas para cartas legendarias */}
       {card.rarity === CardRarity.LEGENDARY && (
-        <div className="absolute inset-0 overflow-hidden z-0">
+        <div className="absolute inset-0 overflow-hidden z-0 rounded-xl">
           <div className="absolute top-0 left-0 w-full h-full">
             {[...Array(15)].map((_, i) => (
               <motion.div
@@ -157,69 +155,55 @@ const Card: React.FC<CardProps> = ({
         </div>
       )}
       
-      {/* Insignia de rareza */}
-      <div className="absolute top-0 right-0 m-1 px-2 py-0.5 text-xs font-bold text-white rounded-full bg-black bg-opacity-50">
-        {card.rarity}
-      </div>
-      
       {/* Contenido de la carta */}
       <div className="relative h-full flex flex-col z-10 p-4">
-        {/* Cabecera con nombre e icono */}
-        <div className="mb-2">
-          <div className={`${getTypeColor(card.type)} w-full rounded px-2 py-1.5 flex items-center`}>
-            <span className="text-xl mr-1">{getTypeIcon(card.type)}</span>
-            <h3 className="text-sm font-bold text-white flex-1 line-clamp-2">
-              {card.name}
-            </h3>
-          </div>
+        {/* Cabecera con icono y tipo */}
+        <div className="flex justify-center items-center mb-1">
+          <span className="text-2xl">{getTypeIcon(card.type)}</span>
         </div>
         
-        {/* Cuerpo con descripción */}
-        <div className="flex-1 mb-2">
-          <p className="text-xs text-gray-300 bg-black bg-opacity-20 p-2 rounded min-h-[80px] max-h-[80px] overflow-y-auto">
+        {/* Título de la carta */}
+        <div className="text-center mb-3">
+          <h3 className="text-base font-bold text-white px-2 py-1 bg-black/30 rounded-lg shadow-inner">
+            {card.name}
+          </h3>
+        </div>
+        
+        {/* Efecto principal - Destacado */}
+        <div className="text-sm font-medium text-center py-2 px-1 bg-black/40 rounded-lg mb-3 text-white shadow-inner">
+          {getEffectDescription(card.type)}
+        </div>
+        
+        {/* Descripción de la carta */}
+        <div className="flex-1 mb-3">
+          <p className="text-[10px] leading-tight text-gray-300 bg-black/20 p-2 rounded-lg min-h-[70px] overflow-y-auto">
             {card.description}
           </p>
         </div>
         
-        {/* Efecto */}
-        <div className="text-xs text-center bg-black bg-opacity-30 rounded py-1 mb-2">
-          {getEffectDescription(card.type)}
-        </div>
-        
-        {/* Estadísticas */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className={`flex flex-col items-center p-1.5 rounded ${isSpecialCard && card.baseChips > 10 ? 'bg-blue-900 animate-pulse' : 'bg-blue-800'}`}>
-            <span className="text-xs text-blue-300">Chips</span>
-            <span className="font-bold text-white text-lg">{card.baseChips}</span>
+        {/* Estadísticas en diseño mejorado */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className={`flex flex-col items-center p-2 rounded-lg ${isSpecialCard && card.baseChips > 10 ? 'bg-gradient-to-b from-blue-800 to-blue-950 animate-pulse' : 'bg-gradient-to-b from-blue-800 to-blue-950'} border border-blue-500/50 shadow-lg`}>
+            <span className="text-xs font-bold text-blue-300">Chips</span>
+            <span className="font-bold text-white text-xl">{card.baseChips}</span>
           </div>
-          <div className={`flex flex-col items-center p-1.5 rounded ${isSpecialCard && card.baseMultiplier > 2 ? 'bg-red-900 animate-pulse' : 'bg-red-800'}`}>
-            <span className="text-xs text-red-300">Mult</span>
-            <span className="font-bold text-white text-lg">×{card.baseMultiplier.toFixed(1)}</span>
+          <div className={`flex flex-col items-center p-2 rounded-lg ${isSpecialCard && card.baseMultiplier > 2 ? 'bg-gradient-to-b from-red-800 to-red-950 animate-pulse' : 'bg-gradient-to-b from-red-800 to-red-950'} border border-red-500/50 shadow-lg`}>
+            <span className="text-xs font-bold text-red-300">Mult</span>
+            <span className="font-bold text-white text-xl">×{card.baseMultiplier.toFixed(1)}</span>
           </div>
         </div>
       </div>
       
       {/* Overlay de selección */}
       {isSelected && (
-        <div className="absolute inset-0 border-4 border-white border-opacity-60 rounded z-20 pointer-events-none"></div>
+        <div className="absolute inset-0 border-4 border-white border-opacity-60 rounded-xl z-20 pointer-events-none"></div>
       )}
       
-      {/* Overlay de arrastre con animación */}
+      {/* Overlay simple para estado de arrastre */}
       {isDragging && (
-        <motion.div 
-          className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-lg z-30 pointer-events-none shadow-xl"
-          initial={{ opacity: 0.5 }}
-          animate={{ 
-            opacity: [0.5, 0.8, 0.5],
-            boxShadow: ['0 0 10px rgba(255,215,0,0.5)', '0 0 20px rgba(255,215,0,0.7)', '0 0 10px rgba(255,215,0,0.5)']
-          }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 1.5 
-          }}
-        />
+        <div className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-xl z-30 pointer-events-none"></div>
       )}
-    </motion.div>
+    </div>
   );
 };
 
