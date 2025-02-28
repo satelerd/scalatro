@@ -161,11 +161,47 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       id: `${jokerId}-${uuidv4().substring(0, 8)}` // Asignamos un ID único
     };
     
+    // Determinamos si este joker tiene efectos especiales (slots adicionales)
+    // Esta es una lógica temporal basada en el nombre; idealmente vendría de datos estructurados
+    let specialEffect = purchasedJoker.specialEffect || [];
+    
+    if (!specialEffect.length) {
+      // Si no tiene efectos especiales, los inferimos del nombre
+      if (jokerToBuy.name.toLowerCase().includes('developer') || 
+          jokerToBuy.name.toLowerCase().includes('ingeniero') ||
+          jokerToBuy.name.toLowerCase().includes('programador')) {
+        specialEffect.push('card_slot');
+      }
+      
+      if (jokerToBuy.name.toLowerCase().includes('scrum') || 
+          jokerToBuy.name.toLowerCase().includes('agile') ||
+          jokerToBuy.name.toLowerCase().includes('product')) {
+        specialEffect.push('discard_slot');
+      }
+      
+      purchasedJoker.specialEffect = specialEffect;
+    }
+    
+    // Aplicar efectos inmediatos si hay slots adicionales
+    let newMaxCardsPerTurn = get().maxCardsPerTurn;
+    let newMaxDiscardsPerTurn = get().maxDiscardsPerTurn;
+    
+    if (specialEffect.includes('card_slot')) {
+      newMaxCardsPerTurn += 1;
+      console.log(`[LOG] Joker añade +1 slot para jugar cartas (total: ${newMaxCardsPerTurn})`);
+    }
+    
+    if (specialEffect.includes('discard_slot')) {
+      newMaxDiscardsPerTurn += 1;
+      console.log(`[LOG] Joker añade +1 slot para descartar cartas (total: ${newMaxDiscardsPerTurn})`);
+    }
+    
     // Aplicamos el efecto del joker (bonus de chips y multiplicador)
     const newChips = get().chips + purchasedJoker.chipBonus;
     const newMultiplier = get().multiplier + purchasedJoker.multiplierBonus;
     
     console.log(`[LOG] Antes de comprar - Jokers activos: ${activeJokers.length}, Chips: ${get().chips}, Multiplicador: ${get().multiplier}`);
+    console.log(`[LOG] Dinero antes de compra: $${money}, Costo del joker: $${purchasedJoker.cost}`);
     
     // Actualizamos el estado
     set({
@@ -173,16 +209,20 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       money: money - purchasedJoker.cost,
       chips: newChips,
       multiplier: newMultiplier,
+      maxCardsPerTurn: newMaxCardsPerTurn,
+      maxDiscardsPerTurn: newMaxDiscardsPerTurn
     });
     
     console.log(`[LOG] Joker comprado: ${purchasedJoker.name} por $${purchasedJoker.cost}`);
     console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - purchasedJoker.cost}`);
     console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
     
-    // Verificamos que el joker se haya añadido correctamente
+    // Verificamos que el joker se haya añadido correctamente y el dinero se haya descontado
     setTimeout(() => {
       const currentJokers = get().activeJokers;
+      const currentMoney = get().money;
       console.log(`[LOG] Verificación - Jokers activos después de compra: ${currentJokers.length}`);
+      console.log(`[LOG] Verificación - Dinero después de compra: $${currentMoney}`);
       currentJokers.forEach((j, index) => {
         console.log(`[LOG] Joker activo #${index+1}: ${j.name}, ID: ${j.id}`);
       });
@@ -201,7 +241,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
   
   endTurn: () => {
-    const { score, currentBenchmark, marketShare, round } = get();
+    const { score, currentBenchmark, marketShare, round, activeJokers } = get();
     
     // Calculamos la puntuación final
     const finalScore = get().calculateScore();
@@ -249,11 +289,35 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       }
     }
     
+    // Calculamos las bonificaciones de los jokers activos
+    let totalChipBonus = 0;
+    let totalMultiplierBonus = 0;
+    let cardBonus = 0;
+    let discardBonus = 0;
+    
+    // Sumamos los bonificadores de todos los jokers
+    activeJokers.forEach(joker => {
+      totalChipBonus += joker.chipBonus || 0;
+      totalMultiplierBonus += joker.multiplierBonus || 0;
+      
+      // Aplicar bonos a maxCardsPerTurn y maxDiscardsPerTurn si existen
+      if (joker.specialEffect) {
+        if (joker.specialEffect.includes('card_slot')) {
+          cardBonus += 1;
+        }
+        if (joker.specialEffect.includes('discard_slot')) {
+          discardBonus += 1;
+        }
+      }
+    });
+    
+    console.log(`[LOG] Bonificaciones de jokers - Chips: ${totalChipBonus}, Mult: ${totalMultiplierBonus}, Card slots: ${cardBonus}, Discard slots: ${discardBonus}`);
+    
     // Preparamos el siguiente turno
     set({
-      // Reiniciamos chips y multiplicador
-      chips: 0,
-      multiplier: 1,
+      // Reiniciamos chips y multiplicador base, preservando bonificaciones de jokers
+      chips: totalChipBonus,
+      multiplier: 1 + totalMultiplierBonus,
       
       // Actualizamos benchmark y cuota de mercado
       currentBenchmark: nextBenchmark,
@@ -267,6 +331,10 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       cardsPlayedThisTurn: 0,
       cardsDiscardedThisTurn: 0,
       
+      // Actualizamos límites de acciones basados en jokers
+      maxCardsPerTurn: 2 + cardBonus,
+      maxDiscardsPerTurn: 2 + discardBonus,
+      
       // Movemos cartas de la mano al descarte
       discardPile: [...get().discardPile, ...get().hand],
       hand: [],
@@ -277,6 +345,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       // Actualizamos el estado del juego
       gameOver,
       canVisitShop,
+      
+      // IMPORTANTE: Mantenemos los activeJokers como están
+      // activeJokers se mantiene igual
     });
     
     // Si superamos el benchmark y podemos visitar la tienda, abrimos la tienda
@@ -287,6 +358,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
     
     console.log(`[LOG] Fin del turno. Nueva ronda: ${round + 1}`);
+    console.log(`[LOG] Jokers activos después de fin de turno: ${get().activeJokers.length}`);
   },
   
   // Acciones de tienda

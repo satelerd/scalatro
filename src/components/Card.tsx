@@ -7,6 +7,7 @@ interface CardProps {
   onClick?: (card: CardType) => void;
   disabled?: boolean;
   isSelected?: boolean;
+  isDragging?: boolean;
 }
 
 // Función para obtener el color según la rareza
@@ -58,11 +59,12 @@ const Card: React.FC<CardProps> = ({
   onClick,
   disabled = false,
   isSelected = false,
+  isDragging = false,
 }) => {
   // Verificar que card no sea undefined
   if (!card) {
-    console.error('[ERROR] Card component recibió card undefined');
-    return null;
+    console.error('[ERROR] Card component recibió un objeto card undefined');
+    return <div className="text-red-500 p-4 border border-red-700 rounded-lg">Error: Carta no disponible</div>;
   }
 
   // Obtenemos el efecto de brillo según la rareza
@@ -111,6 +113,7 @@ const Card: React.FC<CardProps> = ({
         ${getRarityColor(card.rarity)} 
         ${getGlowEffect(card.rarity)}
         ${isSelected ? 'scale-105 shadow-2xl' : ''}
+        ${isDragging ? 'shadow-2xl z-50' : ''}
         ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:shadow-lg'}`}
       whileHover={!disabled ? { scale: 1.05, y: -5 } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
@@ -192,6 +195,11 @@ const Card: React.FC<CardProps> = ({
       {/* Overlay de selección */}
       {isSelected && (
         <div className="absolute inset-0 border-4 border-white border-opacity-60 rounded z-20 pointer-events-none"></div>
+      )}
+      
+      {/* Overlay de arrastre */}
+      {isDragging && (
+        <div className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-lg z-30 pointer-events-none shadow-lg"></div>
       )}
     </motion.div>
   );

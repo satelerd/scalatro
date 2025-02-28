@@ -38,6 +38,7 @@ export interface Joker {
   description: string;
   image?: string;
   effect?: (state: GameState) => GameState;
+  specialEffect?: string[]; // Array de efectos especiales como 'card_slot' o 'discard_slot'
 }
 
 // Interfaz para un benchmark

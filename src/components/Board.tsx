@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useDragControls, useMotionValue, useTransform } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import Card from '@/components/Card';
 import { Card as CardType } from '@/types';
+
+// Definimos las zonas de destino
+interface DropZone {
+  id: string;
+  title: string;
+  description: string;
+  action: (cardId: string) => void;
+  color: string;
+  position: 'left' | 'right';
+  isEnabled: boolean; 
+}
 
 interface BoardProps {
   onRestartGame?: () => void;
@@ -26,6 +37,35 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [isInitialDraw, setIsInitialDraw] = useState(true);
   const [shouldDrawAfterTurn, setShouldDrawAfterTurn] = useState(false);
+  
+  // Estado para la carta que se está arrastrando
+  const [draggingCard, setDraggingCard] = useState<string | null>(null);
+  
+  // Referencias a las zonas de drop
+  const storyPointsZoneRef = useRef<HTMLDivElement>(null);
+  const backlogZoneRef = useRef<HTMLDivElement>(null);
+  
+  // Definimos las zonas de destino
+  const dropZones: DropZone[] = [
+    {
+      id: 'storyPoints',
+      title: 'Story Points',
+      description: 'Arrastra aquí para asignar Story Points',
+      action: playCard,
+      color: 'bg-blue-600',
+      position: 'left',
+      isEnabled: cardsPlayedThisTurn < maxCardsPerTurn
+    },
+    {
+      id: 'backlog',
+      title: 'Backlog',
+      description: 'Arrastra aquí para mover al Backlog',
+      action: discardCard,
+      color: 'bg-red-600',
+      position: 'right',
+      isEnabled: cardsDiscardedThisTurn < maxDiscardsPerTurn
+    }
+  ];
   
   console.log('[BOARD] Estado inicial del tablero');
   console.log('[BOARD] Mano actual:', hand);
@@ -93,7 +133,78 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     }
   }, [shouldDrawAfterTurn, hand.length, drawCard]);
   
-  // Manejador para seleccionar una carta
+  // Función para manejar el inicio del arrastre de una carta
+  const handleDragStart = (cardId: string) => {
+    console.log(`[BOARD] Comenzando a arrastrar carta: ${cardId}`);
+    setDraggingCard(cardId);
+    // Al arrastrar, deseleccionamos cualquier carta seleccionada
+    setSelectedCard(null);
+  };
+  
+  // Función para manejar el fin del arrastre de una carta
+  const handleDragEnd = (cardId: string, info: any) => {
+    console.log(`[BOARD] Fin de arrastre de carta: ${cardId}`);
+    setDraggingCard(null);
+    
+    // Obtenemos las coordenadas del punto final del arrastre
+    const endPoint = { x: info.point.x, y: info.point.y };
+    
+    // Comprobamos si la carta ha sido soltada en alguna zona de destino
+    let cardPlayed = false;
+    
+    // Verificamos la zona de Story Points
+    if (storyPointsZoneRef.current) {
+      const rect = storyPointsZoneRef.current.getBoundingClientRect();
+      if (endPoint.x >= rect.left && endPoint.x <= rect.right &&
+          endPoint.y >= rect.top && endPoint.y <= rect.bottom) {
+        // La carta se ha soltado en la zona de Story Points
+        if (cardsPlayedThisTurn < maxCardsPerTurn) {
+          console.log(`[BOARD] Carta soltada en zona de Story Points: ${cardId}`);
+          
+          // Buscamos la carta en la mano
+          const cardToPlay = hand.find(card => card.id === cardId);
+          if (cardToPlay) {
+            // Jugamos la carta
+            playCard(cardId);
+            
+            // Calculamos la puntuación actual
+            const score = calculateScore();
+            console.log(`[BOARD] Carta jugada. Nueva puntuación: ${score}`);
+            
+            // Mostramos el resultado
+            setPlayResult({ card: cardToPlay, score });
+            
+            cardPlayed = true;
+          }
+        } else {
+          console.log(`[BOARD] No se puede jugar más cartas este turno (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
+        }
+      }
+    }
+    
+    // Verificamos la zona de Backlog
+    if (!cardPlayed && backlogZoneRef.current) {
+      const rect = backlogZoneRef.current.getBoundingClientRect();
+      if (endPoint.x >= rect.left && endPoint.x <= rect.right &&
+          endPoint.y >= rect.top && endPoint.y <= rect.bottom) {
+        // La carta se ha soltado en la zona de Backlog
+        if (cardsDiscardedThisTurn < maxDiscardsPerTurn) {
+          console.log(`[BOARD] Carta soltada en zona de Backlog: ${cardId}`);
+          
+          // Descartamos la carta
+          discardCard(cardId);
+          console.log(`[BOARD] Carta descartada.`);
+          
+          // Limpiamos cualquier resultado anterior
+          setPlayResult(null);
+        } else {
+          console.log(`[BOARD] No se puede descartar más cartas este turno (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
+        }
+      }
+    }
+  };
+  
+  // Manejador para seleccionar una carta (mantener para compatibilidad)
   const handleSelectCard = (card: CardType) => {
     console.log(`[BOARD] Carta seleccionada: ${card.id} - ${card.name}`);
     
@@ -108,7 +219,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     setPlayResult(null); // Limpiamos el resultado anterior
   };
   
-  // Manejador para jugar la carta seleccionada
+  // Manejador para jugar la carta seleccionada (mantener para compatibilidad)
   const handlePlayCard = () => {
     if (!selectedCard) return;
     
@@ -150,7 +261,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     setTimeout(() => setPlayResult(null), 3000);
   };
 
-  // Manejador para descartar la carta seleccionada
+  // Manejador para descartar la carta seleccionada (mantener para compatibilidad)
   const handleDiscardCard = () => {
     if (!selectedCard) return;
     
@@ -232,8 +343,38 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
         </div>
       </div>
       
+      {/* Zonas de destino para arrastrar cartas */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {dropZones.map(zone => (
+          <motion.div
+            key={zone.id}
+            ref={zone.id === 'storyPoints' ? storyPointsZoneRef : backlogZoneRef}
+            className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed transition-colors
+              ${zone.isEnabled 
+                ? `${zone.color} border-white/30 hover:border-white/60` 
+                : 'bg-gray-700 border-gray-600 opacity-60'}`}
+            whileHover={zone.isEnabled ? { scale: 1.02 } : {}}
+            animate={{
+              boxShadow: draggingCard 
+                ? (zone.isEnabled ? '0 0 15px rgba(255,255,255,0.3)' : 'none') 
+                : 'none'
+            }}
+          >
+            <div className="text-lg font-semibold text-white">{zone.title}</div>
+            <div className="text-xs text-gray-300 text-center">{zone.description}</div>
+            {!zone.isEnabled && (
+              <div className="text-xs text-gray-400 mt-1">
+                (Límite alcanzado: {zone.id === 'storyPoints' 
+                  ? `${cardsPlayedThisTurn}/${maxCardsPerTurn}` 
+                  : `${cardsDiscardedThisTurn}/${maxDiscardsPerTurn}`})
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+      
       {/* Área para mostrar el resultado de jugar una carta */}
-      <div className="min-h-[200px] flex items-center justify-center bg-gray-800/50 rounded-lg p-4 mb-6">
+      <div className="min-h-[150px] flex items-center justify-center bg-gray-800/50 rounded-lg p-4 mb-6">
         <AnimatePresence mode="wait">
           {selectedCard ? (
             <motion.div 
@@ -296,7 +437,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
             </motion.div>
           ) : (
             <div className="text-gray-400 text-center">
-              <p>Selecciona una carta de tu mano para asignar Story Points o mover al Backlog</p>
+              <p>Arrastra las cartas hacia las zonas de destino o selecciona una carta para más opciones.</p>
               {hand.length === 0 && (
                 <p className="mt-2">No tienes cartas en tu mano.</p>
               )}
@@ -309,7 +450,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-white mb-2">Tu Mano</h3>
         <div className="overflow-x-auto">
-          <div className="flex space-x-4 pb-4">
+          <div className="flex space-x-4 pb-4 min-h-[280px]">
             <AnimatePresence>
               {hand.map(card => (
                 <motion.div
@@ -318,11 +459,19 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.3 }}
+                  drag
+                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                  dragElastic={0.5}
+                  onDragStart={() => handleDragStart(card.id)}
+                  onDragEnd={(e, info) => handleDragEnd(card.id, info)}
+                  whileDrag={{ scale: 1.05, zIndex: 10 }}
+                  whileHover={{ y: -10 }}
                 >
                   <Card 
                     card={card} 
                     onClick={handleSelectCard}
                     isSelected={selectedCard === card.id}
+                    isDragging={draggingCard === card.id}
                   />
                 </motion.div>
               ))}
