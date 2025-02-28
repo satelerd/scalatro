@@ -22,3 +22,32 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Estilos para mejorar la experiencia de arrastre */
+.dragging {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+  position: relative !important;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)) !important;
+}
+
+/* Clase añadida al body durante el arrastre para prevenir interacciones indeseadas */
+body.dragging-card {
+  cursor: grabbing !important;
+}
+
+/* Mejorar visibilidad de zonas de destino durante el arrastre */
+body.dragging-card [data-motion-drag-target="true"] {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efecto de resaltado para áreas de drop potenciales */
+body.dragging-card .bg-blue-600:hover,
+body.dragging-card .bg-red-600:hover {
+  filter: brightness(1.2);
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  border-style: dashed;
+  border-width: 2px;
+}

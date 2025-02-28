@@ -139,12 +139,18 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     setDraggingCard(cardId);
     // Al arrastrar, deseleccionamos cualquier carta seleccionada
     setSelectedCard(null);
+    
+    // Agregar una clase al body durante el arrastre para prevenir interacciones indeseadas
+    document.body.classList.add('dragging-card');
   };
   
   // Función para manejar el fin del arrastre de una carta
   const handleDragEnd = (cardId: string, info: any) => {
     console.log(`[BOARD] Fin de arrastre de carta: ${cardId}`);
     setDraggingCard(null);
+    
+    // Eliminar la clase del body
+    document.body.classList.remove('dragging-card');
     
     // Obtenemos las coordenadas del punto final del arrastre
     const endPoint = { x: info.point.x, y: info.point.y };
@@ -344,7 +350,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
       </div>
       
       {/* Zonas de destino para arrastrar cartas */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-4 mb-4 relative z-0">
         {dropZones.map(zone => (
           <motion.div
             key={zone.id}
@@ -373,84 +379,11 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
         ))}
       </div>
       
-      {/* Área para mostrar el resultado de jugar una carta */}
-      <div className="min-h-[150px] flex items-center justify-center bg-gray-800/50 rounded-lg p-4 mb-6">
-        <AnimatePresence mode="wait">
-          {selectedCard ? (
-            <motion.div 
-              key="selected"
-              className="flex flex-row items-center justify-center w-full"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {/* Nueva ubicación de las acciones disponibles - a la izquierda */}
-              <div className="flex flex-col space-y-3 w-1/2 pr-4">
-                <h3 className="text-lg font-semibold text-white mb-1">Acciones disponibles:</h3>
-                <button
-                  onClick={handlePlayCard}
-                  disabled={!canPlayMoreCards}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-colors w-full text-left
-                    ${canPlayMoreCards 
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                      : 'bg-gray-600 text-gray-300 cursor-not-allowed'}`}
-                >
-                  Asignar Story Points {!canPlayMoreCards && '(Límite alcanzado)'}
-                </button>
-                
-                <button
-                  onClick={handleDiscardCard}
-                  disabled={!canDiscardMoreCards}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-colors w-full text-left
-                    ${canDiscardMoreCards 
-                      ? 'bg-red-600 hover:bg-red-700 text-white' 
-                      : 'bg-gray-600 text-gray-300 cursor-not-allowed'}`}
-                >
-                  Mover a Backlog {!canDiscardMoreCards && '(Límite alcanzado)'}
-                </button>
-              </div>
-              
-              {/* Carta seleccionada - a la derecha */}
-              <div className="flex flex-col items-center w-1/2">
-                <div className="text-lg font-bold text-white mb-2">Carta seleccionada</div>
-                {hand.map(card => card.id === selectedCard ? (
-                  <Card key={card.id} card={card} disabled />
-                ) : null)}
-              </div>
-            </motion.div>
-          ) : 
-          playResult ? (
-            <motion.div 
-              className="flex flex-col items-center"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="text-lg font-bold text-green-400 mb-2">¡Story Points asignados!</div>
-              <div className="flex items-center gap-4">
-                <Card card={playResult.card} disabled />
-                <div className="bg-gray-900 p-4 rounded-lg shadow-md">
-                  <div className="text-center text-gray-300 mb-1">Puntuación actual</div>
-                  <div className="text-3xl font-bold text-white">{playResult.score}</div>
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <div className="text-gray-400 text-center">
-              <p>Arrastra las cartas hacia las zonas de destino o selecciona una carta para más opciones.</p>
-              {hand.length === 0 && (
-                <p className="mt-2">No tienes cartas en tu mano.</p>
-              )}
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-      
       {/* Mano del jugador */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-white mb-2">Tu Mano</h3>
         <div className="overflow-x-auto">
-          <div className="flex space-x-4 pb-4 min-h-[280px]">
+          <div className="flex space-x-4 pb-4 min-h-[280px] relative">
             <AnimatePresence>
               {hand.map(card => (
                 <motion.div
@@ -462,10 +395,16 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                   drag
                   dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                   dragElastic={0.5}
+                  dragMomentum={false}
                   onDragStart={() => handleDragStart(card.id)}
                   onDragEnd={(e, info) => handleDragEnd(card.id, info)}
-                  whileDrag={{ scale: 1.05, zIndex: 10 }}
+                  whileDrag={{ scale: 1.05, zIndex: 9999 }}
                   whileHover={{ y: -10 }}
+                  style={{ 
+                    zIndex: draggingCard === card.id ? 9999 : 1,
+                    position: 'relative'
+                  }}
+                  className={draggingCard === card.id ? 'dragging' : ''}
                 >
                   <Card 
                     card={card} 

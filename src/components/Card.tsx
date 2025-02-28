@@ -113,12 +113,19 @@ const Card: React.FC<CardProps> = ({
         ${getRarityColor(card.rarity)} 
         ${getGlowEffect(card.rarity)}
         ${isSelected ? 'scale-105 shadow-2xl' : ''}
-        ${isDragging ? 'shadow-2xl z-50' : ''}
-        ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:scale-105 hover:shadow-lg'}`}
+        ${isDragging ? 'shadow-[0_0_20px_rgba(255,255,255,0.7)] z-50' : ''}
+        ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg'}`}
       whileHover={!disabled ? { scale: 1.05, y: -5 } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
+      whileDrag={{ rotate: [0, -0.5, 0.5, 0], scale: 1.05 }}
       onClick={handleClick}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      style={{ 
+        zIndex: isDragging ? 9999 : 'auto',
+        transformOrigin: 'center center',
+        cursor: isDragging ? 'grabbing' : (disabled ? 'not-allowed' : 'grab')
+      }}
+      drag={false}
     >
       {/* Fondo de la carta con gradiente */}
       <div className={`absolute inset-0 bg-gradient-to-b ${getRarityColor(card.rarity)} z-0`}></div>
@@ -197,9 +204,20 @@ const Card: React.FC<CardProps> = ({
         <div className="absolute inset-0 border-4 border-white border-opacity-60 rounded z-20 pointer-events-none"></div>
       )}
       
-      {/* Overlay de arrastre */}
+      {/* Overlay de arrastre con animación */}
       {isDragging && (
-        <div className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-lg z-30 pointer-events-none shadow-lg"></div>
+        <motion.div 
+          className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-lg z-30 pointer-events-none shadow-xl"
+          initial={{ opacity: 0.5 }}
+          animate={{ 
+            opacity: [0.5, 0.8, 0.5],
+            boxShadow: ['0 0 10px rgba(255,215,0,0.5)', '0 0 20px rgba(255,215,0,0.7)', '0 0 10px rgba(255,215,0,0.5)']
+          }}
+          transition={{ 
+            repeat: Infinity, 
+            duration: 1.5 
+          }}
+        />
       )}
     </motion.div>
   );
