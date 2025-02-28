@@ -8,50 +8,50 @@
 - [x] Configurar README.md con instrucciones del proyecto
 
 ## Desarrollo UI Básica
-- [ ] Diseñar y crear componente de carta
-  - [ ] Estructura visual de carta (frontal/trasera)
-  - [ ] Animaciones básicas (volteo, arrastre)
-- [ ] Crear tablero de juego
-  - [ ] Área para cartas en juego
-  - [ ] Área para mazo
-  - [ ] Visualización de benchmarks
-- [ ] Implementar panel de recursos
-  - [ ] Contador de chips
-  - [ ] Visualización de multiplicador
-  - [ ] Contador de puntuación total
-- [ ] Crear tienda básica
-  - [ ] Lista de jokers disponibles
-  - [ ] Mecánica de compra
+- [x] Diseñar y crear componente de carta
+  - [x] Estructura visual de carta (frontal/trasera)
+  - [x] Animaciones básicas (volteo, arrastre)
+- [x] Crear tablero de juego
+  - [x] Área para cartas en juego
+  - [x] Área para mazo
+  - [x] Visualización de benchmarks
+- [x] Implementar panel de recursos
+  - [x] Contador de chips
+  - [x] Visualización de multiplicador
+  - [x] Contador de puntuación total
+- [x] Crear tienda básica
+  - [x] Lista de jokers disponibles
+  - [x] Mecánica de compra
 
 ## Lógica del Juego
-- [ ] Implementar store global con Zustand
-  - [ ] Estado para cartas
-  - [ ] Estado para recursos
-  - [ ] Estado para benchmarks
-- [ ] Crear tipos TypeScript para el juego
-  - [ ] Interfaces para cartas
-  - [ ] Interfaces para jokers
-  - [ ] Interfaces para estado del juego
-- [ ] Desarrollar lógica de cálculo de puntuaciones
-  - [ ] Cálculo básico (chips × multiplicador)
-  - [ ] Bonificaciones por combos
-- [ ] Sistema de benchmarks
-  - [ ] Definir umbrales de puntuación
-  - [ ] Manejo de éxito/fracaso en benchmarks
+- [x] Implementar store global con Zustand
+  - [x] Estado para cartas
+  - [x] Estado para recursos
+  - [x] Estado para benchmarks
+- [x] Crear tipos TypeScript para el juego
+  - [x] Interfaces para cartas
+  - [x] Interfaces para jokers
+  - [x] Interfaces para estado del juego
+- [x] Desarrollar lógica de cálculo de puntuaciones
+  - [x] Cálculo básico (chips × multiplicador)
+  - [x] Bonificaciones por combos
+- [x] Sistema de benchmarks
+  - [x] Definir umbrales de puntuación
+  - [x] Manejo de éxito/fracaso en benchmarks
 
 ## Mecánicas de Juego
-- [ ] Implementar sistema de turnos
-  - [ ] Jugar cartas
-  - [ ] Calcular puntuación
-  - [ ] Verificar benchmarks
-  - [ ] Acceder a tienda
-- [ ] Desarrollar efectos de jokers
-  - [ ] Mejoras de chips
-  - [ ] Mejoras de multiplicador
-  - [ ] Efectos especiales
-- [ ] Sistema de progresión
-  - [ ] Dificultad creciente de benchmarks
-  - [ ] Desbloqueo de nuevas cartas/jokers
+- [x] Implementar sistema de turnos
+  - [x] Jugar cartas
+  - [x] Calcular puntuación
+  - [x] Verificar benchmarks
+  - [x] Acceder a tienda
+- [x] Desarrollar efectos de jokers
+  - [x] Mejoras de chips
+  - [x] Mejoras de multiplicador
+  - [x] Efectos especiales
+- [x] Sistema de progresión
+  - [x] Dificultad creciente de benchmarks
+  - [x] Desbloqueo de nuevas cartas/jokers
 
 ## Pulido Visual y Experiencia
 - [ ] Mejorar animaciones

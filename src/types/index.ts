@@ -64,12 +64,19 @@ export interface GameState {
   discardPile: Card[];
   activeJokers: Joker[];
   
+  // Limitaciones de acciones por turno
+  maxCardsPerTurn: number;
+  cardsPlayedThisTurn: number;
+  maxDiscardsPerTurn: number;
+  cardsDiscardedThisTurn: number;
+  
   // Estado del juego
   currentBenchmark: Benchmark;
   benchmarks: Benchmark[];
   round: number;
   shopOpen: boolean;
   gameOver: boolean;
+  canVisitShop: boolean;
 }
 
 // Interfaz para las acciones del juego
@@ -89,4 +96,8 @@ export interface GameActions {
   // Acciones de tienda
   openShop: () => void;
   closeShop: () => void;
+  
+  // Acciones de configuración
+  resetGame: () => void;
+  setDifficulty: (multiplier: number) => void;
 } 

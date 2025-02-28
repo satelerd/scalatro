@@ -20,12 +20,19 @@ const initialState: GameState = {
   discardPile: [],
   activeJokers: [],
   
+  // Limitaciones de acciones por turno
+  maxCardsPerTurn: 2,
+  cardsPlayedThisTurn: 0,
+  maxDiscardsPerTurn: 2,
+  cardsDiscardedThisTurn: 0,
+  
   // Estado del juego
   currentBenchmark: getInitialBenchmark(),
   benchmarks: [],
   round: 1,
   shopOpen: false,
   gameOver: false,
+  canVisitShop: false,
 };
 
 // Store global del juego con Zustand
@@ -34,10 +41,34 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   
   // Acciones para cartas
   drawCard: () => {
-    const { deck, hand } = get();
+    const { deck, hand, discardPile } = get();
     
-    // Si no hay cartas en el mazo, no hacemos nada
-    if (deck.length === 0) return;
+    // Si no hay cartas en el mazo, barajamos el descarte
+    if (deck.length === 0) {
+      if (discardPile.length === 0) {
+        console.log(`[LOG] No hay cartas disponibles para robar`);
+        return;
+      }
+      
+      // Barajar el descarte y convertirlo en el nuevo mazo
+      const shuffledDeck = [...discardPile].sort(() => Math.random() - 0.5);
+      console.log(`[LOG] Se barajó el descarte (${shuffledDeck.length} cartas) para formar un nuevo mazo`);
+      
+      set({
+        deck: shuffledDeck,
+        discardPile: []
+      });
+      
+      // Intentamos robar de nuevo (ahora con el mazo relleno)
+      setTimeout(() => get().drawCard(), 100);
+      return;
+    }
+    
+    // Limitamos a 3 cartas iniciales
+    if (hand.length >= 3) {
+      console.log(`[LOG] Ya tienes el máximo de 3 cartas en mano`);
+      return;
+    }
     
     // Tomamos la primera carta del mazo y la añadimos a la mano
     const [cardToDraw, ...restDeck] = deck;
@@ -51,7 +82,13 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
   
   playCard: (cardId: string) => {
-    const { hand, chips, multiplier } = get();
+    const { hand, chips, multiplier, cardsPlayedThisTurn, maxCardsPerTurn } = get();
+    
+    // Verificamos si ya jugamos el máximo de cartas por turno
+    if (cardsPlayedThisTurn >= maxCardsPerTurn) {
+      console.log(`[LOG] Ya has jugado el máximo de ${maxCardsPerTurn} cartas este turno`);
+      return;
+    }
     
     // Buscamos la carta en la mano
     const cardToPlay = hand.find(card => card.id === cardId);
@@ -67,14 +104,22 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       discardPile: [...get().discardPile, cardToPlay],
       chips: newChips,
       multiplier: newMultiplier,
+      cardsPlayedThisTurn: cardsPlayedThisTurn + 1,
     });
     
     console.log(`[LOG] Carta jugada: ${cardToPlay.name}`);
     console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}`);
+    console.log(`[LOG] Cartas jugadas este turno: ${cardsPlayedThisTurn + 1}/${maxCardsPerTurn}`);
   },
   
   discardCard: (cardId: string) => {
-    const { hand } = get();
+    const { hand, cardsDiscardedThisTurn, maxDiscardsPerTurn } = get();
+    
+    // Verificamos si ya descartamos el máximo de cartas por turno
+    if (cardsDiscardedThisTurn >= maxDiscardsPerTurn) {
+      console.log(`[LOG] Ya has descartado el máximo de ${maxDiscardsPerTurn} cartas este turno`);
+      return;
+    }
     
     // Buscamos la carta en la mano
     const cardToDiscard = hand.find(card => card.id === cardId);
@@ -84,9 +129,11 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     set({
       hand: hand.filter(card => card.id !== cardId),
       discardPile: [...get().discardPile, cardToDiscard],
+      cardsDiscardedThisTurn: cardsDiscardedThisTurn + 1,
     });
     
     console.log(`[LOG] Carta descartada: ${cardToDiscard.name}`);
+    console.log(`[LOG] Cartas descartadas este turno: ${cardsDiscardedThisTurn + 1}/${maxDiscardsPerTurn}`);
   },
   
   // Acciones de jokers
@@ -97,7 +144,10 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     const shopJokers = getShopJokers(get().round);
     const jokerToBuy = shopJokers.find(joker => joker.id === jokerId);
     
-    if (!jokerToBuy) return;
+    if (!jokerToBuy) {
+      console.log(`[LOG] El joker no se encontró en la tienda`);
+      return;
+    }
     
     // Verificamos si tenemos suficiente dinero
     if (money < jokerToBuy.cost) {
@@ -107,7 +157,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     
     // Aplicamos el efecto del joker (bonus de chips y multiplicador)
     const newChips = get().chips + jokerToBuy.chipBonus;
-    const newMultiplier = get().multiplier + jokerToBuy.multiplierBonus - 1;
+    const newMultiplier = get().multiplier + jokerToBuy.multiplierBonus;
     
     // Actualizamos el estado
     set({
@@ -117,8 +167,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       multiplier: newMultiplier,
     });
     
-    console.log(`[LOG] Joker comprado: ${jokerToBuy.name}`);
+    console.log(`[LOG] Joker comprado: ${jokerToBuy.name} por $${jokerToBuy.cost}`);
     console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - jokerToBuy.cost}`);
+    console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
   },
   
   // Acciones de turno
@@ -143,6 +194,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     let nextBenchmark = currentBenchmark;
     let newMoney = get().money;
     let gameOver = false;
+    let canVisitShop = false;
     
     if (finalScore >= currentBenchmark.targetScore) {
       // Superamos el benchmark
@@ -153,6 +205,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       
       // Añadimos dinero como recompensa
       newMoney += 50 * round;
+      
+      // Permitimos visitar la tienda
+      canVisitShop = true;
       
       // Obtenemos el siguiente benchmark
       const next = getNextBenchmark(currentBenchmark.id);
@@ -191,28 +246,69 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       // Incrementamos la ronda
       round: round + 1,
       
+      // Reiniciamos contadores de acciones por turno
+      cardsPlayedThisTurn: 0,
+      cardsDiscardedThisTurn: 0,
+      
       // Movemos cartas de la mano al descarte
       discardPile: [...get().discardPile, ...get().hand],
       hand: [],
       
-      // Robamos nuevas cartas para el siguiente turno
-      deck: getInitialDeck(),
+      // Si el mazo tiene menos de 3 cartas, añadimos cartas nuevas
+      deck: get().deck.length < 3 ? [...get().deck, ...getInitialDeck()] : get().deck,
       
       // Actualizamos el estado del juego
       gameOver,
+      canVisitShop,
     });
+    
+    // Si superamos el benchmark y podemos visitar la tienda, abrimos la tienda
+    if (canVisitShop) {
+      setTimeout(() => {
+        get().openShop();
+      }, 500);
+    }
     
     console.log(`[LOG] Fin del turno. Nueva ronda: ${round + 1}`);
   },
   
   // Acciones de tienda
   openShop: () => {
+    // Solo permitimos abrir la tienda si canVisitShop es true
+    if (!get().canVisitShop && !get().gameOver) {
+      console.log(`[LOG] Tienda no disponible aún. Completa el benchmark actual primero.`);
+      return;
+    }
+    
     set({ shopOpen: true });
     console.log(`[LOG] Tienda abierta`);
   },
   
   closeShop: () => {
-    set({ shopOpen: false });
+    set({ 
+      shopOpen: false,
+      canVisitShop: false // Reseteamos la bandera al cerrar la tienda
+    });
     console.log(`[LOG] Tienda cerrada`);
+  },
+  
+  // Función para reiniciar el juego
+  resetGame: () => {
+    console.log(`[LOG] Reiniciando el juego...`);
+    set({ ...initialState });
+  },
+  
+  // Función para cambiar la dificultad (multiplica los objetivos de los benchmarks)
+  setDifficulty: (multiplier: number) => {
+    const { currentBenchmark } = get();
+    
+    // Ajustamos la dificultad actual
+    const adjustedBenchmark = {
+      ...currentBenchmark,
+      targetScore: Math.round(currentBenchmark.targetScore * multiplier),
+    };
+    
+    set({ currentBenchmark: adjustedBenchmark });
+    console.log(`[LOG] Dificultad ajustada: ${multiplier}x`);
   },
 })); 
