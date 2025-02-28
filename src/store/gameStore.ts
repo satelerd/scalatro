@@ -155,21 +155,38 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       return;
     }
     
+    // Creamos una copia del joker con un ID único para evitar problemas de duplicados
+    const purchasedJoker = {
+      ...jokerToBuy,
+      id: `${jokerId}-${uuidv4().substring(0, 8)}` // Asignamos un ID único
+    };
+    
     // Aplicamos el efecto del joker (bonus de chips y multiplicador)
-    const newChips = get().chips + jokerToBuy.chipBonus;
-    const newMultiplier = get().multiplier + jokerToBuy.multiplierBonus;
+    const newChips = get().chips + purchasedJoker.chipBonus;
+    const newMultiplier = get().multiplier + purchasedJoker.multiplierBonus;
+    
+    console.log(`[LOG] Antes de comprar - Jokers activos: ${activeJokers.length}, Chips: ${get().chips}, Multiplicador: ${get().multiplier}`);
     
     // Actualizamos el estado
     set({
-      activeJokers: [...activeJokers, jokerToBuy],
-      money: money - jokerToBuy.cost,
+      activeJokers: [...activeJokers, purchasedJoker],
+      money: money - purchasedJoker.cost,
       chips: newChips,
       multiplier: newMultiplier,
     });
     
-    console.log(`[LOG] Joker comprado: ${jokerToBuy.name} por $${jokerToBuy.cost}`);
-    console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - jokerToBuy.cost}`);
+    console.log(`[LOG] Joker comprado: ${purchasedJoker.name} por $${purchasedJoker.cost}`);
+    console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - purchasedJoker.cost}`);
     console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
+    
+    // Verificamos que el joker se haya añadido correctamente
+    setTimeout(() => {
+      const currentJokers = get().activeJokers;
+      console.log(`[LOG] Verificación - Jokers activos después de compra: ${currentJokers.length}`);
+      currentJokers.forEach((j, index) => {
+        console.log(`[LOG] Joker activo #${index+1}: ${j.name}, ID: ${j.id}`);
+      });
+    }, 100);
   },
   
   // Acciones de turno
