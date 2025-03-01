@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { Joker, CardRarity } from '@/types';
 
 const ActiveJokers: React.FC = () => {
   const { activeJokers } = useGameStore();
+  
+  useEffect(() => {
+    console.log(`[LOG] ActiveJokers component - Jokers activos: ${activeJokers.length}`);
+    
+    if (activeJokers.length > 0) {
+      console.log('[LOG] Lista de jokers activos:');
+      activeJokers.forEach((joker, index) => {
+        console.log(`[LOG] Joker #${index + 1}: ${joker.name} (ID: ${joker.id})`);
+      });
+    }
+  }, [activeJokers]);
   
   // Si no hay jokers activos, no mostramos nada
   if (activeJokers.length === 0) {
@@ -56,10 +67,32 @@ const ActiveJokers: React.FC = () => {
     }
     return '🃏';
   };
+  
+  // Obtener efectos especiales si los hay
+  const getSpecialEffects = (joker: Joker): React.ReactNode => {
+    if (!joker.specialEffect || joker.specialEffect.length === 0) {
+      return null;
+    }
+    
+    return (
+      <>
+        {joker.specialEffect.includes('card_slot') && (
+          <span className="bg-green-900/60 rounded px-1.5 py-0.5 text-green-300">
+            +1 slot para jugar
+          </span>
+        )}
+        {joker.specialEffect.includes('discard_slot') && (
+          <span className="bg-yellow-900/60 rounded px-1.5 py-0.5 text-yellow-300">
+            +1 slot para descartar
+          </span>
+        )}
+      </>
+    );
+  };
 
   return (
     <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold text-white mb-3">Recursos Contratados</h2>
+      <h2 className="text-xl font-bold text-white mb-3">Recursos Contratados ({activeJokers.length})</h2>
       
       <div className="grid grid-cols-1 gap-3">
         <AnimatePresence>
@@ -111,6 +144,7 @@ const ActiveJokers: React.FC = () => {
                         {joker.name.includes('GPU') ? 'Hardware' : 'Datos'}
                       </span>
                     )}
+                    {getSpecialEffects(joker)}
                   </div>
                 </div>
               </div>

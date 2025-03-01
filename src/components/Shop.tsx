@@ -13,6 +13,12 @@ interface ShopProps {
 const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
   const { round, money, buyJoker, activeJokers } = useGameStore();
   const [shopJokers, setShopJokers] = useState<JokerType[]>([]);
+  const [currentMoney, setCurrentMoney] = useState(money);
+  
+  // Efecto para actualizar el dinero cuando cambia en el store
+  useEffect(() => {
+    setCurrentMoney(money);
+  }, [money]);
   
   // Efecto para cargar los jokers cuando se abre la tienda
   useEffect(() => {
@@ -20,12 +26,25 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
       // Obtenemos los jokers disponibles según la ronda actual
       const jokers = getShopJokers(round);
       setShopJokers(jokers);
+      setCurrentMoney(money); // Aseguramos que el dinero esté actualizado
       console.log(`[LOG] Tienda abierta con ${jokers.length} jokers disponibles`);
+      console.log(`[LOG] Dinero disponible: $${money}`);
+      console.log(`[LOG] Jokers activos: ${activeJokers.length}`);
     }
-  }, [isOpen, round]);
+  }, [isOpen, round, money, activeJokers.length]);
   
   // Manejador para comprar un joker
   const handleBuyJoker = (joker: JokerType) => {
+    console.log(`[LOG] Intentando comprar joker: ${joker.name} (ID: ${joker.id})`);
+    console.log(`[LOG] Costo: $${joker.cost}, Dinero disponible: $${money}`);
+    
+    // Verificar que tenemos suficiente dinero
+    if (money < joker.cost) {
+      console.log(`[LOG] No hay suficiente dinero para comprar ${joker.name}`);
+      return;
+    }
+    
+    // Comprar el joker
     buyJoker(joker.id);
     
     // Actualizamos la lista para eliminar el joker comprado
@@ -33,6 +52,12 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
     
     // Mostramos un mensaje de confirmación
     showBuyConfirmation(joker.name);
+    
+    // Verificamos que la compra se realizó correctamente
+    setTimeout(() => {
+      const currentStore = useGameStore.getState();
+      console.log(`[LOG] Verificación post-compra - Dinero: $${currentStore.money}, Jokers activos: ${currentStore.activeJokers.length}`);
+    }, 200);
   };
   
   // Función para mostrar una animación de confirmación
@@ -44,7 +69,7 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
   
   // Verificar si el jugador puede comprar un joker específico
   const canAffordJoker = (joker: JokerType): boolean => {
-    return money >= joker.cost;
+    return currentMoney >= joker.cost;
   };
 
   return (
@@ -74,7 +99,7 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="flex items-center">
                 <div className="bg-amber-900/70 px-3 py-1 rounded-lg mr-4">
-                  <span className="text-yellow-400 font-bold">${money}</span>
+                  <span className="text-yellow-400 font-bold">${currentMoney}</span>
                 </div>
                 <button 
                   onClick={onClose}

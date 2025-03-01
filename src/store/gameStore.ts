@@ -203,30 +203,34 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     console.log(`[LOG] Antes de comprar - Jokers activos: ${activeJokers.length}, Chips: ${get().chips}, Multiplicador: ${get().multiplier}`);
     console.log(`[LOG] Dinero antes de compra: $${money}, Costo del joker: $${purchasedJoker.cost}`);
     
-    // Actualizamos el estado
-    set({
-      activeJokers: [...activeJokers, purchasedJoker],
-      money: money - purchasedJoker.cost,
-      chips: newChips,
-      multiplier: newMultiplier,
-      maxCardsPerTurn: newMaxCardsPerTurn,
-      maxDiscardsPerTurn: newMaxDiscardsPerTurn
-    });
-    
-    console.log(`[LOG] Joker comprado: ${purchasedJoker.name} por $${purchasedJoker.cost}`);
-    console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - purchasedJoker.cost}`);
-    console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
-    
-    // Verificamos que el joker se haya añadido correctamente y el dinero se haya descontado
-    setTimeout(() => {
-      const currentJokers = get().activeJokers;
-      const currentMoney = get().money;
-      console.log(`[LOG] Verificación - Jokers activos después de compra: ${currentJokers.length}`);
-      console.log(`[LOG] Verificación - Dinero después de compra: $${currentMoney}`);
-      currentJokers.forEach((j, index) => {
-        console.log(`[LOG] Joker activo #${index+1}: ${j.name}, ID: ${j.id}`);
+    try {
+      // Actualizamos el estado
+      set({
+        activeJokers: [...activeJokers, purchasedJoker],
+        money: money - purchasedJoker.cost,
+        chips: newChips,
+        multiplier: newMultiplier,
+        maxCardsPerTurn: newMaxCardsPerTurn,
+        maxDiscardsPerTurn: newMaxDiscardsPerTurn
       });
-    }, 100);
+      
+      console.log(`[LOG] Joker comprado: ${purchasedJoker.name} por $${purchasedJoker.cost}`);
+      console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - purchasedJoker.cost}`);
+      console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
+      
+      // Verificamos que el joker se haya añadido correctamente y el dinero se haya descontado
+      setTimeout(() => {
+        const currentJokers = get().activeJokers;
+        const currentMoney = get().money;
+        console.log(`[LOG] Verificación - Jokers activos después de compra: ${currentJokers.length}`);
+        console.log(`[LOG] Verificación - Dinero después de compra: $${currentMoney}`);
+        currentJokers.forEach((j, index) => {
+          console.log(`[LOG] Joker activo #${index+1}: ${j.name}, ID: ${j.id}`);
+        });
+      }, 100);
+    } catch (error) {
+      console.error('[ERROR] Error al comprar joker:', error);
+    }
   },
   
   // Acciones de turno
