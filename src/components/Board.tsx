@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import Card from '@/components/Card';
 import { Card as CardType } from '@/types';
+import { createPortal } from 'react-dom';
 
 // Definimos las zonas de destino
 interface DropZone {
@@ -40,10 +41,17 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   
   // Estado para la carta que se está arrastrando
   const [draggingCard, setDraggingCard] = useState<string | null>(null);
+  // Posición del cursor para el portal
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  // Estado para controlar si el botón está presionado
+  const [isMouseDown, setIsMouseDown] = useState(false);
   
   // Referencias a las zonas de drop
   const storyPointsZoneRef = useRef<HTMLDivElement>(null);
   const backlogZoneRef = useRef<HTMLDivElement>(null);
+  
+  // Referencia al contenedor principal para medidas
+  const boardRef = useRef<HTMLDivElement>(null);
   
   // Definimos las zonas de destino
   const dropZones: DropZone[] = [
@@ -133,18 +141,69 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     }
   }, [shouldDrawAfterTurn, hand.length, drawCard]);
   
+  // Agregar manejador de eventos global para seguir la posición del cursor
+  useEffect(() => {
+    const updateCursorPosition = (e: MouseEvent) => {
+      if (draggingCard && isMouseDown) {
+        setCursorPosition({ x: e.clientX, y: e.clientY });
+      }
+    };
+    
+    const handleMouseUp = () => {
+      if (draggingCard) {
+        // Si tenemos una carta arrastrándose y levantamos el botón del ratón en cualquier lugar,
+        // terminamos el arrastre
+        handleDragEnd(draggingCard, { point: cursorPosition });
+      }
+      setIsMouseDown(false);
+    };
+
+    // Registrar el evento solo cuando se está arrastrando
+    if (draggingCard) {
+      window.addEventListener('mousemove', updateCursorPosition);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', updateCursorPosition);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [draggingCard, isMouseDown, cursorPosition]);
+  
   // Función para manejar el inicio del arrastre de una carta
-  const handleDragStart = (cardId: string) => {
+  const handleDragStart = (cardId: string, e: React.MouseEvent) => {
     console.log(`[BOARD] Comenzando a arrastrar carta: ${cardId}`);
     setDraggingCard(cardId);
     setSelectedCard(null);
+    setIsMouseDown(true);
     document.body.classList.add('dragging-card');
+    
+    // Capturar posición inicial del cursor
+    setCursorPosition({ x: e.clientX, y: e.clientY });
+    
+    // Crear un overlay global
+    const overlay = document.createElement('div');
+    overlay.id = 'global-drag-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.zIndex = '999999998';  // Justo debajo del portal de arrastre
+    overlay.style.pointerEvents = 'none';
+    document.body.appendChild(overlay);
   };
   
   // Función para manejar el fin del arrastre de una carta
   const handleDragEnd = (cardId: string, info: any) => {
     console.log(`[BOARD] Fin de arrastre de carta: ${cardId}`);
     document.body.classList.remove('dragging-card');
+    
+    // Eliminar el overlay global
+    const overlay = document.getElementById('global-drag-overlay');
+    if (overlay) {
+      document.body.removeChild(overlay);
+    }
     
     // Obtenemos las coordenadas del punto final del arrastre
     const endPoint = { x: info.point.x, y: info.point.y };
@@ -155,7 +214,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     // Verificamos la zona de Story Points con un margen de tolerancia
     if (storyPointsZoneRef.current) {
       const rect = storyPointsZoneRef.current.getBoundingClientRect();
-      const margin = 20; // Aumentamos el margen de tolerancia
+      const margin = 30; // Aumentamos aún más el margen de tolerancia
       if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
           endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
         // La carta se ha soltado en la zona de Story Points
@@ -185,7 +244,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     // Verificamos la zona de Backlog con un margen de tolerancia
     if (!cardPlayed && backlogZoneRef.current) {
       const rect = backlogZoneRef.current.getBoundingClientRect();
-      const margin = 20; // Aumentamos el margen de tolerancia
+      const margin = 30; // Aumentamos aún más el margen de tolerancia
       if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
           endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
         // La carta se ha soltado en la zona de Backlog
@@ -331,8 +390,36 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   // Determinar si podemos descartar más cartas
   const canDiscardMoreCards = cardsDiscardedThisTurn < maxDiscardsPerTurn;
   
+  // Renderizar la carta que se está arrastrando actualmente en el body
+  const renderDraggingCardPortal = () => {
+    if (!draggingCard || !isMouseDown) return null;
+    
+    const draggedCard = hand.find(card => card.id === draggingCard);
+    if (!draggedCard || typeof document === 'undefined') return null;
+    
+    // Calculamos la posición para que la carta esté centrada en el cursor
+    const cardStyle = {
+      position: 'fixed' as 'fixed',
+      left: `${cursorPosition.x}px`,
+      top: `${cursorPosition.y}px`,
+      transform: 'translate(-50%, -50%)',
+      zIndex: 9999999,
+      pointerEvents: 'none' as 'none',
+    };
+    
+    return createPortal(
+      <div style={cardStyle}>
+        <Card 
+          card={draggedCard} 
+          isDragging={true}
+        />
+      </div>,
+      document.body
+    );
+  };
+  
   return (
-    <div className="bg-gray-900 p-4 rounded-lg shadow-lg overflow-hidden relative">
+    <div ref={boardRef} className="bg-gray-900 p-4 rounded-lg shadow-lg overflow-hidden relative">
       <h2 className="text-xl font-bold text-white mb-4">Tablero de Desarrollo</h2>
       
       {/* Estadísticas de acciones por turno */}
@@ -351,15 +438,14 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
       <div className="grid grid-cols-2 gap-4 mb-6 relative z-0">
         {dropZones.map(zone => {
           // Determinar el color de la zona basado en su estado
-          let zoneColor = 'bg-gray-700'; // Color por defecto (deshabilitado)
+          let zoneColor = 'bg-gray-700/70'; // Color por defecto (deshabilitado)
           
           if (zone.isEnabled) {
-            if (draggingCard) {
-              // Si hay una carta en arrastre y la zona está habilitada, usar color brillante
-              zoneColor = zone.color; // Color brillante original
+            // Si la zona está habilitada, usar un color muy suave por defecto
+            if (zone.id === 'storyPoints') {
+              zoneColor = draggingCard ? 'bg-blue-600/80' : 'bg-blue-600/30'; // Azul muy suave para story points, más intenso al arrastrar
             } else {
-              // Si no hay arrastre, usar color apagado
-              zoneColor = zone.color.replace('bg-', 'bg-') + '/40'; // Versión más apagada
+              zoneColor = draggingCard ? 'bg-red-600/80' : 'bg-red-600/30'; // Rojo muy suave para backlog, más intenso al arrastrar
             }
           }
           
@@ -367,12 +453,14 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
             <motion.div
               key={zone.id}
               ref={zone.id === 'storyPoints' ? storyPointsZoneRef : backlogZoneRef}
-              className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed transition-all
-                ${zoneColor} ${!zone.isEnabled ? 'opacity-60' : ''} border-white/20`}
+              className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed transition-all drop-zone
+                ${zoneColor} ${!zone.isEnabled ? 'opacity-60' : ''} ${zone.isEnabled ? 'border-white/30' : 'border-white/10'}`}
               whileHover={zone.isEnabled ? { scale: 1.02 } : {}}
               animate={{
                 boxShadow: draggingCard && zone.isEnabled
-                  ? '0 0 15px rgba(255,255,255,0.2)'
+                  ? zone.id === 'storyPoints' 
+                    ? '0 0 20px rgba(59, 130, 246, 0.2)' // Azul para story points
+                    : '0 0 20px rgba(239, 68, 68, 0.2)' // Rojo para backlog
                   : 'none',
                 scale: draggingCard && zone.isEnabled ? 1.02 : 1
               }}
@@ -404,28 +492,22 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.3 }}
-                  drag={true}
-                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                  dragElastic={0.9}
-                  dragMomentum={false}
-                  onDragStart={() => handleDragStart(card.id)}
-                  onDragEnd={(e, info) => handleDragEnd(card.id, info)}
-                  whileDrag={{ 
-                    scale: 1.05, 
-                    zIndex: 999999
-                  }}
+                  onMouseDown={(e) => handleDragStart(card.id, e)}
                   whileHover={{ y: -10 }}
                   className="card-container"
-                  style={{ 
-                    zIndex: draggingCard === card.id ? 999999 : 1,
-                  }}
                 >
-                  <Card 
-                    card={card} 
-                    onClick={handleSelectCard}
-                    isSelected={selectedCard === card.id}
-                    isDragging={draggingCard === card.id}
-                  />
+                  {/* Solo mostramos la carta original si no se está arrastrando */}
+                  {draggingCard !== card.id && (
+                    <Card 
+                      card={card} 
+                      onClick={handleSelectCard}
+                      isSelected={selectedCard === card.id}
+                    />
+                  )}
+                  {/* Si se está arrastrando, mostramos un placeholder translúcido */}
+                  {draggingCard === card.id && (
+                    <div className="w-52 h-[280px] rounded-xl border-2 border-dashed border-white/30 bg-white/5"></div>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -502,8 +584,11 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
           </button>
         )}
       </div>
+      
+      {/* Portal para cartas arrastrables - Ahora directamente en el body y solo si isMouseDown es true */}
+      {renderDraggingCardPortal()}
     </div>
   );
 };
 
-export default Board; 
+export default Board;

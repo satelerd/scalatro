@@ -29,17 +29,42 @@ body {
   transition: transform 0.3s ease;
   will-change: transform;
   z-index: 1;
+  position: relative;
+}
+
+/* Al arrastrar, asegurarse de que todas las cartas estén por encima */
+.card-container:active {
+  z-index: 999999 !important;
+}
+
+/* Para asegurar que cualquier elemento arrastrable esté por encima */
+[draggable="true"] {
+  position: relative;
+  z-index: 9999999 !important;
 }
 
 /* Clase para el estado de arrastre */
 body.dragging-card {
-  cursor: grabbing;
+  cursor: grabbing !important;
+}
+
+/* Durante el arrastre, asegurarse de que el div portal esté por encima de todo */
+#drag-portal {
+  z-index: 9999999999 !important;
+  pointer-events: none;
 }
 
 /* Mejora de zonas de destino durante arrastre */
 body.dragging-card .drop-zone {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+body.dragging-card .drop-zone:hover {
+  filter: brightness(1.1);
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
 }
 
 /* Estilo para los botones de acción */
@@ -51,4 +76,15 @@ button {
 button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos específicos para cuando se está arrastrando una carta */
+#global-drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999998;
+  pointer-events: none;
 }

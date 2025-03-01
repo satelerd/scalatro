@@ -113,13 +113,15 @@ const Card: React.FC<CardProps> = ({
         ${getRarityColor(card.rarity)} 
         ${getGlowEffect(card.rarity)}
         ${isSelected ? 'scale-105 shadow-2xl' : ''}
-        ${isDragging ? 'shadow-[0_0_20px_rgba(255,255,255,0.7)]' : ''}
+        ${isDragging ? 'shadow-[0_0_40px_rgba(255,255,255,0.7)]' : ''}
         ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:scale-105 hover:shadow-lg'}`}
       onClick={handleClick}
       style={{ 
-        zIndex: isDragging ? 999 : 'auto',
-        transform: isDragging ? 'scale(1.05)' : 'none',
-        boxShadow: isDragging ? '0 0 20px rgba(255, 255, 255, 0.7)' : undefined
+        zIndex: isDragging ? 999999999 : 'auto',
+        transform: isDragging ? 'scale(1.1)' : 'none',
+        boxShadow: isDragging ? '0 0 40px rgba(255, 255, 255, 0.7)' : undefined,
+        position: isDragging ? 'relative' : 'relative',
+        pointerEvents: isDragging ? 'none' : 'auto',
       }}
     >
       {/* Fondo de la carta con gradiente */}
@@ -199,9 +201,12 @@ const Card: React.FC<CardProps> = ({
         <div className="absolute inset-0 border-4 border-white border-opacity-60 rounded-xl z-20 pointer-events-none"></div>
       )}
       
-      {/* Overlay simple para estado de arrastre */}
+      {/* Overlay para estado de arrastre */}
       {isDragging && (
-        <div className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-xl z-30 pointer-events-none"></div>
+        <div className="absolute inset-0 border-4 border-yellow-400 border-opacity-80 rounded-xl z-30 pointer-events-none">
+          {/* Efecto de brillo adicional para destacar en arrastre */}
+          <div className="absolute inset-0 rounded-xl bg-white/10"></div>
+        </div>
       )}
     </div>
   );
