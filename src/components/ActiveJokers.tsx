@@ -7,29 +7,29 @@ const ActiveJokers: React.FC = () => {
   const { activeJokers } = useGameStore();
   
   useEffect(() => {
-    console.log(`[LOG] ActiveJokers component - Jokers activos: ${activeJokers.length}`);
+    console.log(`[LOG] ActiveJokers component - Active jokers: ${activeJokers.length}`);
     
     if (activeJokers.length > 0) {
-      console.log('[LOG] Lista de jokers activos:');
+      console.log('[LOG] List of active jokers:');
       activeJokers.forEach((joker, index) => {
         console.log(`[LOG] Joker #${index + 1}: ${joker.name} (ID: ${joker.id})`);
       });
     }
   }, [activeJokers]);
   
-  // Si no hay jokers activos, no mostramos nada
+  // If there are no active jokers, we don't show anything
   if (activeJokers.length === 0) {
     return (
       <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-white mb-2">Recursos Contratados</h2>
+        <h2 className="text-xl font-bold text-white mb-2">Hired Resources</h2>
         <div className="text-gray-400 text-center py-3">
-          Sin recursos activos. Visita la tienda cuando esté disponible para contratar nuevos recursos.
+          No active resources. Visit the shop when available to hire new resources.
         </div>
       </div>
     );
   }
   
-  // Función para obtener el color según la rareza
+  // Function to get color based on rarity
   const getRarityColor = (rarity: CardRarity) => {
     switch (rarity) {
       case CardRarity.COMMON:
@@ -45,18 +45,18 @@ const ActiveJokers: React.FC = () => {
     }
   };
   
-  // Función para verificar si un joker es de tipo GPU o Datos
+  // Function to check if a joker is a Hardware or Data type
   const isHardwareJoker = (name: string): boolean => {
-    return name.includes('GPU') || name.includes('Datos') || 
+    return name.includes('GPU') || name.includes('Data') || 
            name.includes('RTX') || name.includes('NVIDIA');
   };
 
-  // Función para obtener icono según el nombre del joker
+  // Function to get an icon based on joker name
   const getJokerIcon = (name: string): string => {
     if (name.includes('GPU') || name.includes('RTX') || name.includes('NVIDIA')) {
       return '🖥️';
     }
-    if (name.includes('Datos') || name.includes('Data')) {
+    if (name.includes('Data') || name.includes('Datos')) {
       return '📊';
     }
     if (name.includes('Talent') || name.includes('Engineer') || name.includes('Dev')) {
@@ -68,7 +68,7 @@ const ActiveJokers: React.FC = () => {
     return '🃏';
   };
   
-  // Obtener efectos especiales si los hay
+  // Get special effects if any
   const getSpecialEffects = (joker: Joker): React.ReactNode => {
     if (!joker.specialEffect || joker.specialEffect.length === 0) {
       return null;
@@ -78,12 +78,12 @@ const ActiveJokers: React.FC = () => {
       <>
         {joker.specialEffect.includes('card_slot') && (
           <span className="bg-green-900/60 rounded px-1.5 py-0.5 text-green-300">
-            +1 slot para jugar
+            +1 play slot
           </span>
         )}
         {joker.specialEffect.includes('discard_slot') && (
           <span className="bg-yellow-900/60 rounded px-1.5 py-0.5 text-yellow-300">
-            +1 slot para descartar
+            +1 discard slot
           </span>
         )}
       </>
@@ -92,7 +92,7 @@ const ActiveJokers: React.FC = () => {
 
   return (
     <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold text-white mb-3">Recursos Contratados ({activeJokers.length})</h2>
+      <h2 className="text-xl font-bold text-white mb-3">Hired Resources ({activeJokers.length})</h2>
       
       <div className="grid grid-cols-1 gap-3">
         <AnimatePresence>
@@ -105,14 +105,14 @@ const ActiveJokers: React.FC = () => {
               className={`border rounded-lg overflow-hidden bg-gradient-to-b shadow-md ${getRarityColor(joker.rarity)}`}
             >
               <div className="flex items-start p-2">
-                {/* Icono y nombre */}
+                {/* Icon and name */}
                 <div className="flex-shrink-0 mr-3">
                   <div className="w-8 h-8 flex items-center justify-center text-xl bg-gray-800 rounded-full">
                     {getJokerIcon(joker.name)}
                   </div>
                 </div>
                 
-                {/* Contenido */}
+                {/* Content */}
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <h3 className="font-bold text-white text-sm">
@@ -127,7 +127,7 @@ const ActiveJokers: React.FC = () => {
                     {joker.description}
                   </p>
                   
-                  {/* Bonificaciones */}
+                  {/* Bonuses */}
                   <div className="flex flex-wrap gap-1 text-xs">
                     {joker.chipBonus > 0 && (
                       <span className="bg-blue-900/60 rounded px-1.5 py-0.5 text-blue-300">
@@ -141,7 +141,7 @@ const ActiveJokers: React.FC = () => {
                     )}
                     {isHardwareJoker(joker.name) && (
                       <span className="bg-purple-900/60 rounded px-1.5 py-0.5 text-purple-300">
-                        {joker.name.includes('GPU') ? 'Hardware' : 'Datos'}
+                        {joker.name.includes('GPU') ? 'Hardware' : 'Data'}
                       </span>
                     )}
                     {getSpecialEffects(joker)}

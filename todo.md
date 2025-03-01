@@ -53,6 +53,19 @@
   - [x] Dificultad creciente de benchmarks
   - [x] Desbloqueo de nuevas cartas/jokers
 
+## Mejoras y Correcciones
+- [x] Corregir problemas de robado automático de cartas
+  - [x] Implementar sistema para mantener siempre 3 cartas en mano
+  - [x] Agregar robado automático después de jugar/descartar carta
+  - [x] Agregar robado automático después de terminar turno
+- [x] Mejorar interfaz de usuario
+  - [x] Optimizar layout de acciones disponibles
+  - [x] Mejorar presentación de carta seleccionada
+- [x] Corregir problemas con compras de la tienda
+  - [x] Asegurar que los jokers comprados se apliquen correctamente
+  - [x] Generar IDs únicos para evitar conflictos de jokers duplicados
+  - [x] Mejorar verificación de compra y aplicación de efectos
+
 ## Pulido Visual y Experiencia
 - [ ] Mejorar animaciones
   - [ ] Efectos para combos grandes

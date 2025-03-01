@@ -10,26 +10,26 @@ interface GameOverProps {
 const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
   const { marketShare, round, score, activeJokers, money } = useGameStore();
   
-  // Determinamos si el jugador ganó (marketShare > 50%) o perdió (marketShare <= 0)
+  // Determine if the player won (marketShare > 50%) or lost (marketShare <= 0)
   const isVictory = marketShare >= 50;
   
-  // Calculamos la puntuación final (score + bonus por jokers y dinero restante)
+  // Calculate final score (score + bonus for jokers and remaining money)
   const jokerBonus = activeJokers.length * 100;
   const moneyBonus = money / 10;
   const finalScore = score + jokerBonus + moneyBonus;
   
-  // Efecto para mostrar un mensaje en la consola
+  // Effect to show a message in the console
   useEffect(() => {
-    console.log(`[LOG] Juego terminado. Victoria: ${isVictory}, Puntuación final: ${finalScore}`);
+    console.log(`[LOG] Game over. Victory: ${isVictory}, Final score: ${finalScore}`);
   }, [isVictory, finalScore]);
   
-  // Función para determinar el rango del jugador según su puntuación
+  // Function to determine player rank based on score
   const getPlayerRank = (): string => {
-    if (finalScore >= 2000) return "CEO de IA";
-    if (finalScore >= 1500) return "Visionario Tecnológico";
-    if (finalScore >= 1000) return "Director de Innovación";
-    if (finalScore >= 500) return "Empresario Prometedor";
-    return "Startupero Novato";
+    if (finalScore >= 2000) return "AI CEO";
+    if (finalScore >= 1500) return "Tech Visionary";
+    if (finalScore >= 1000) return "Innovation Director";
+    if (finalScore >= 500) return "Promising Entrepreneur";
+    return "Startup Novice";
   };
   
   return (
@@ -49,7 +49,7 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
         animate={{ scale: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
       >
-        {/* Encabezado */}
+        {/* Header */}
         <div className="text-center mb-6">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -61,17 +61,17 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
                 ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600'
                 : 'text-red-500'
             }`}>
-              {isVictory ? '¡Victoria!' : 'Game Over'}
+              {isVictory ? 'Victory!' : 'Game Over'}
             </h2>
             <p className="text-gray-400 text-lg">
               {isVictory 
-                ? '¡Has dominado el mercado de la IA!'
-                : 'Tu startup de IA no ha sobrevivido la competencia.'}
+                ? 'You have dominated the AI market!'
+                : 'Your AI startup did not survive the competition.'}
             </p>
           </motion.div>
         </div>
         
-        {/* Estadísticas principales */}
+        {/* Main stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <motion.div 
             className="bg-gray-800 p-4 rounded-lg text-center"
@@ -79,7 +79,7 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.6 }}
           >
-            <div className="text-sm text-gray-400 mb-1">Cuota de Mercado</div>
+            <div className="text-sm text-gray-400 mb-1">Market Share</div>
             <div className={`text-3xl font-bold ${isVictory ? 'text-green-400' : 'text-red-400'}`}>
               {marketShare}%
             </div>
@@ -91,7 +91,7 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.7 }}
           >
-            <div className="text-sm text-gray-400 mb-1">Rondas Jugadas</div>
+            <div className="text-sm text-gray-400 mb-1">Rounds Played</div>
             <div className="text-3xl font-bold text-blue-400">
               {round - 1}
             </div>
@@ -103,32 +103,32 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.8 }}
           >
-            <div className="text-sm text-gray-400 mb-1">Puntuación Final</div>
+            <div className="text-sm text-gray-400 mb-1">Final Score</div>
             <div className="text-3xl font-bold text-purple-400">
               {Math.floor(finalScore)}
             </div>
           </motion.div>
         </div>
         
-        {/* Desglose de puntuación */}
+        {/* Score breakdown */}
         <motion.div 
           className="bg-gray-800 p-4 rounded-lg mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.9 }}
         >
-          <h3 className="font-semibold text-center text-gray-300 mb-3">Desglose de Puntuación</h3>
+          <h3 className="font-semibold text-center text-gray-300 mb-3">Score Breakdown</h3>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-400">Puntuación base:</span>
+              <span className="text-gray-400">Base score:</span>
               <span className="font-semibold">{score}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Bonus por jokers ({activeJokers.length}):</span>
+              <span className="text-gray-400">Joker bonus ({activeJokers.length}):</span>
               <span className="font-semibold text-green-400">+{jokerBonus}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Bonus por dinero restante (${money}):</span>
+              <span className="text-gray-400">Remaining money bonus (${money}):</span>
               <span className="font-semibold text-green-400">+{Math.floor(moneyBonus)}</span>
             </div>
             <div className="border-t border-gray-700 pt-2 flex justify-between">
@@ -138,25 +138,25 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
           </div>
         </motion.div>
         
-        {/* Rango del jugador */}
+        {/* Player rank */}
         <motion.div 
           className="bg-gray-800 p-4 rounded-lg mb-6 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 1.0 }}
         >
-          <h3 className="font-semibold text-gray-300 mb-2">Tu rango final</h3>
+          <h3 className="font-semibold text-gray-300 mb-2">Your final rank</h3>
           <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
             {getPlayerRank()}
           </div>
           <div className="text-sm text-gray-400 mt-1">
             {isVictory 
-              ? '¡Impresionante! Has construido una empresa de IA de clase mundial.'
-              : 'Hay espacio para mejorar. ¡Inténtalo de nuevo!'}
+              ? 'Impressive! You have built a world-class AI company.'
+              : 'There is room for improvement. Try again!'}
           </div>
         </motion.div>
         
-        {/* Botón para reiniciar */}
+        {/* Restart button */}
         <div className="text-center">
           <motion.button 
             className="bg-gradient-to-r from-amber-600 to-amber-800 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-amber-700 hover:to-amber-900 transition-colors shadow-xl"
@@ -167,7 +167,7 @@ const GameOver: React.FC<GameOverProps> = ({ onRestart }) => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 1.2 }}
           >
-            Jugar de Nuevo
+            Play Again
           </motion.button>
         </div>
       </motion.div>

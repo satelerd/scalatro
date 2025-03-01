@@ -15,59 +15,59 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
   const [shopJokers, setShopJokers] = useState<JokerType[]>([]);
   const [currentMoney, setCurrentMoney] = useState(money);
   
-  // Efecto para actualizar el dinero cuando cambia en el store
+  // Effect to update money when it changes in the store
   useEffect(() => {
     setCurrentMoney(money);
   }, [money]);
   
-  // Efecto para cargar los jokers cuando se abre la tienda
+  // Effect to load jokers when the shop opens
   useEffect(() => {
     if (isOpen) {
-      // Obtenemos los jokers disponibles según la ronda actual
+      // Get available jokers based on the current round
       const jokers = getShopJokers(round);
       setShopJokers(jokers);
-      setCurrentMoney(money); // Aseguramos que el dinero esté actualizado
-      console.log(`[LOG] Tienda abierta con ${jokers.length} jokers disponibles`);
-      console.log(`[LOG] Dinero disponible: $${money}`);
-      console.log(`[LOG] Jokers activos: ${activeJokers.length}`);
+      setCurrentMoney(money); // Ensure money is up to date
+      console.log(`[LOG] Shop opened with ${jokers.length} available jokers`);
+      console.log(`[LOG] Available money: $${money}`);
+      console.log(`[LOG] Active jokers: ${activeJokers.length}`);
     }
   }, [isOpen, round, money, activeJokers.length]);
   
-  // Manejador para comprar un joker
+  // Handler to buy a joker
   const handleBuyJoker = (joker: JokerType) => {
-    console.log(`[LOG] Intentando comprar joker: ${joker.name} (ID: ${joker.id})`);
-    console.log(`[LOG] Costo: $${joker.cost}, Dinero disponible: $${money}`);
+    console.log(`[LOG] Attempting to buy joker: ${joker.name} (ID: ${joker.id})`);
+    console.log(`[LOG] Cost: $${joker.cost}, Available money: $${money}`);
     
-    // Verificar que tenemos suficiente dinero
+    // Verify we have enough money
     if (money < joker.cost) {
-      console.log(`[LOG] No hay suficiente dinero para comprar ${joker.name}`);
+      console.log(`[LOG] Not enough money to buy ${joker.name}`);
       return;
     }
     
-    // Comprar el joker
+    // Buy the joker
     buyJoker(joker.id);
     
-    // Actualizamos la lista para eliminar el joker comprado
+    // Update the list to remove the purchased joker
     setShopJokers(prev => prev.filter(j => j.id !== joker.id));
     
-    // Mostramos un mensaje de confirmación
+    // Show a confirmation message
     showBuyConfirmation(joker.name);
     
-    // Verificamos que la compra se realizó correctamente
+    // Verify the purchase was successful
     setTimeout(() => {
       const currentStore = useGameStore.getState();
-      console.log(`[LOG] Verificación post-compra - Dinero: $${currentStore.money}, Jokers activos: ${currentStore.activeJokers.length}`);
+      console.log(`[LOG] Post-purchase verification - Money: $${currentStore.money}, Active jokers: ${currentStore.activeJokers.length}`);
     }, 200);
   };
   
-  // Función para mostrar una animación de confirmación
+  // Function to show a confirmation animation
   const [buyConfirmation, setBuyConfirmation] = useState('');
   const showBuyConfirmation = (jokerName: string) => {
     setBuyConfirmation(jokerName);
     setTimeout(() => setBuyConfirmation(''), 2000);
   };
   
-  // Verificar si el jugador puede comprar un joker específico
+  // Check if the player can afford a specific joker
   const canAffordJoker = (joker: JokerType): boolean => {
     return currentMoney >= joker.cost;
   };
@@ -89,13 +89,13 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
             exit={{ scale: 0.9, y: 20 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Encabezado de la tienda */}
+            {/* Shop header */}
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 text-transparent bg-clip-text">
-                  Tienda de Mejoras
+                  Upgrade Shop
                 </h2>
-                <p className="text-sm text-gray-400">Ronda {round} - Nivel {Math.min(round, 4)}</p>
+                <p className="text-sm text-gray-400">Round {round} - Level {Math.min(round, 4)}</p>
               </div>
               <div className="flex items-center">
                 <div className="bg-amber-900/70 px-3 py-1 rounded-lg mr-4">
@@ -112,19 +112,19 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
             
-            {/* Texto informativo */}
+            {/* Informative text */}
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-300">
-                Compra GPUs, datos de entrenamiento y técnicas avanzadas para mejorar tu empresa de IA.
+                Buy GPUs, training data, and advanced techniques to improve your AI company.
               </p>
               <div className="bg-gray-800 px-3 py-1 rounded-lg">
                 <span className="text-amber-400 text-sm">
-                  Mejoras activas: <strong>{activeJokers.length}</strong>
+                  Active upgrades: <strong>{activeJokers.length}</strong>
                 </span>
               </div>
             </div>
             
-            {/* Notificación de compra */}
+            {/* Purchase notification */}
             <AnimatePresence>
               {buyConfirmation && (
                 <motion.div 
@@ -134,12 +134,12 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <p>¡<span className="font-bold">{buyConfirmation}</span> añadido a tus mejoras activas!</p>
+                  <p>¡<span className="font-bold">{buyConfirmation}</span> added to your active upgrades!</p>
                 </motion.div>
               )}
             </AnimatePresence>
             
-            {/* Lista de jokers disponibles */}
+            {/* Available jokers list */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               {shopJokers.length > 0 ? (
                 shopJokers.map(joker => (
@@ -154,22 +154,22 @@ const Shop: React.FC<ShopProps> = ({ isOpen, onClose }) => {
                 <div className="col-span-3 text-center bg-gray-800 rounded-lg py-12 px-4">
                   <div className="text-6xl mb-4">🏪</div>
                   <p className="text-gray-400 mb-2">
-                    No hay más mejoras disponibles en la tienda actualmente.
+                    No more upgrades available in the shop currently.
                   </p>
                   <p className="text-amber-400 text-sm">
-                    Finaliza el turno para ver nuevas opciones en la siguiente ronda.
+                    End the turn to see new options in the next round.
                   </p>
                 </div>
               )}
             </div>
             
-            {/* Botón para cerrar */}
+            {/* Close button */}
             <div className="mt-8 text-center">
               <button
                 onClick={onClose}
                 className="bg-gradient-to-r from-amber-600 to-amber-800 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:from-amber-700 hover:to-amber-900"
               >
-                Cerrar Tienda
+                Close Shop
               </button>
             </div>
           </motion.div>

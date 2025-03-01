@@ -5,7 +5,7 @@ import Card from '@/components/Card';
 import { Card as CardType } from '@/types';
 import { createPortal } from 'react-dom';
 
-// Definimos las zonas de destino
+// Define drop zones
 interface DropZone {
   id: string;
   title: string;
@@ -39,26 +39,26 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   const [isInitialDraw, setIsInitialDraw] = useState(true);
   const [shouldDrawAfterTurn, setShouldDrawAfterTurn] = useState(false);
   
-  // Estado para la carta que se está arrastrando
+  // State for the card being dragged
   const [draggingCard, setDraggingCard] = useState<string | null>(null);
-  // Posición del cursor para el portal
+  // Cursor position for the portal
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  // Estado para controlar si el botón está presionado
+  // State to control if mouse button is pressed
   const [isMouseDown, setIsMouseDown] = useState(false);
   
-  // Referencias a las zonas de drop
+  // References to drop zones
   const storyPointsZoneRef = useRef<HTMLDivElement>(null);
   const backlogZoneRef = useRef<HTMLDivElement>(null);
   
-  // Referencia al contenedor principal para medidas
+  // Reference to the main container for measurements
   const boardRef = useRef<HTMLDivElement>(null);
   
-  // Definimos las zonas de destino
+  // Define drop zones
   const dropZones: DropZone[] = [
     {
       id: 'storyPoints',
       title: 'Story Points',
-      description: 'Arrastra aquí para asignar Story Points',
+      description: 'Drag here to assign Story Points',
       action: playCard,
       color: 'bg-blue-600',
       position: 'left',
@@ -67,7 +67,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     {
       id: 'backlog',
       title: 'Backlog',
-      description: 'Arrastra aquí para mover al Backlog',
+      description: 'Drag here to move to Backlog',
       action: discardCard,
       color: 'bg-red-600',
       position: 'right',
@@ -75,73 +75,73 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     }
   ];
   
-  console.log('[BOARD] Estado inicial del tablero');
-  console.log('[BOARD] Mano actual:', hand);
+  console.log('[BOARD] Initial board state');
+  console.log('[BOARD] Current hand:', hand);
   console.log('[BOARD] isInitialDraw:', isInitialDraw);
   
-  // Efecto para robar cartas automáticamente solo la primera vez
+  // Effect to draw cards automatically only on first load
   useEffect(() => {
     if (isInitialDraw) {
-      console.log('[BOARD] Realizando relleno inicial de cartas');
+      console.log('[BOARD] Performing initial hand fill');
       
-      // Calculamos cuántas cartas necesitamos
+      // Calculate how many cards we need
       const cardsNeeded = Math.max(0, 3 - hand.length);
-      console.log(`[BOARD] Cartas necesarias para llenar la mano: ${cardsNeeded}`);
+      console.log(`[BOARD] Cards needed to fill hand: ${cardsNeeded}`);
       
-      // Usamos un bucle for en lugar de while para evitar bucles infinitos
+      // Use a for loop instead of while to avoid infinite loops
       for (let i = 0; i < cardsNeeded; i++) {
-        console.log(`[BOARD] Robando carta ${i+1} de ${cardsNeeded}`);
+        console.log(`[BOARD] Drawing card ${i+1} of ${cardsNeeded}`);
         drawCard();
       }
       
-      // Marcamos que ya hemos realizado el llenado inicial
+      // Mark that we've completed the initial fill
       setIsInitialDraw(false);
-      console.log('[BOARD] Llenado inicial de cartas completado');
+      console.log('[BOARD] Initial hand fill completed');
     }
-  }, [isInitialDraw, drawCard]); // Añadimos drawCard a las dependencias
+  }, [isInitialDraw, drawCard]); // Add drawCard to dependencies
   
-  // Nuevo efecto para comprobar y mantener 3 cartas en mano después de cada acción
+  // New effect to check and maintain 3 cards in hand after each action
   useEffect(() => {
-    // Si no es la carga inicial y tenemos menos de 3 cartas, robamos automáticamente
+    // If not initial load and we have less than 3 cards, draw automatically
     if (!isInitialDraw && hand.length < 3) {
-      console.log('[BOARD] Rellenando mano automáticamente después de acción');
+      console.log('[BOARD] Automatically refilling hand after action');
       
-      // Calculamos cuántas cartas necesitamos
+      // Calculate how many cards we need
       const cardsNeeded = Math.max(0, 3 - hand.length);
-      console.log(`[BOARD] Cartas necesarias para llenar la mano: ${cardsNeeded}`);
+      console.log(`[BOARD] Cards needed to fill hand: ${cardsNeeded}`);
       
-      // Usamos un bucle for para robar las cartas necesarias
+      // Use a for loop to draw the necessary cards
       for (let i = 0; i < cardsNeeded; i++) {
-        console.log(`[BOARD] Robando carta ${i+1} de ${cardsNeeded}`);
+        console.log(`[BOARD] Drawing card ${i+1} of ${cardsNeeded}`);
         drawCard();
       }
       
-      console.log('[BOARD] Relleno automático completado');
+      console.log('[BOARD] Automatic refill completed');
     }
-  }, [hand.length, isInitialDraw, drawCard]); // Dependemos de la longitud de la mano
+  }, [hand.length, isInitialDraw, drawCard]); // Depend on hand length
   
-  // Efecto para robar cartas después de finalizar un turno
+  // Effect to draw cards after ending a turn
   useEffect(() => {
     if (shouldDrawAfterTurn) {
-      console.log('[BOARD] Rellenando mano después de finalizar turno');
+      console.log('[BOARD] Refilling hand after turn end');
       
-      // Calculamos cuántas cartas necesitamos
+      // Calculate how many cards we need
       const cardsNeeded = Math.max(0, 3 - hand.length);
-      console.log(`[BOARD] Cartas necesarias después de turno: ${cardsNeeded}`);
+      console.log(`[BOARD] Cards needed after turn: ${cardsNeeded}`);
       
-      // Usamos un bucle for para robar las cartas necesarias
+      // Use a for loop to draw the necessary cards
       for (let i = 0; i < cardsNeeded; i++) {
-        console.log(`[BOARD] Robando carta post-turno ${i+1} de ${cardsNeeded}`);
+        console.log(`[BOARD] Drawing post-turn card ${i+1} of ${cardsNeeded}`);
         drawCard();
       }
       
-      // Reseteamos el flag
+      // Reset the flag
       setShouldDrawAfterTurn(false);
-      console.log('[BOARD] Relleno post-turno completado');
+      console.log('[BOARD] Post-turn refill completed');
     }
   }, [shouldDrawAfterTurn, hand.length, drawCard]);
   
-  // Agregar manejador de eventos global para seguir la posición del cursor
+  // Add global event handler to track cursor position
   useEffect(() => {
     const updateCursorPosition = (e: MouseEvent) => {
       if (draggingCard && isMouseDown) {
@@ -151,14 +151,14 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     
     const handleMouseUp = () => {
       if (draggingCard) {
-        // Si tenemos una carta arrastrándose y levantamos el botón del ratón en cualquier lugar,
-        // terminamos el arrastre
+        // If we have a card being dragged and mouse button is released anywhere,
+        // end the drag
         handleDragEnd(draggingCard, { point: cursorPosition });
       }
       setIsMouseDown(false);
     };
 
-    // Registrar el evento solo cuando se está arrastrando
+    // Register the event only when dragging
     if (draggingCard) {
       window.addEventListener('mousemove', updateCursorPosition);
       window.addEventListener('mouseup', handleMouseUp);
@@ -170,18 +170,18 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     };
   }, [draggingCard, isMouseDown, cursorPosition]);
   
-  // Función para manejar el inicio del arrastre de una carta
+  // Function to handle the start of card dragging
   const handleDragStart = (cardId: string, e: React.MouseEvent) => {
-    console.log(`[BOARD] Comenzando a arrastrar carta: ${cardId}`);
+    console.log(`[BOARD] Starting to drag card: ${cardId}`);
     setDraggingCard(cardId);
     setSelectedCard(null);
     setIsMouseDown(true);
     document.body.classList.add('dragging-card');
     
-    // Capturar posición inicial del cursor
+    // Capture initial cursor position
     setCursorPosition({ x: e.clientX, y: e.clientY });
     
-    // Crear un overlay global
+    // Create a global overlay
     const overlay = document.createElement('div');
     overlay.id = 'global-drag-overlay';
     overlay.style.position = 'fixed';
@@ -189,46 +189,46 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     overlay.style.left = '0';
     overlay.style.width = '100vw';
     overlay.style.height = '100vh';
-    overlay.style.zIndex = '999999998';  // Justo debajo del portal de arrastre
+    overlay.style.zIndex = '999999998';  // Just below the drag portal
     overlay.style.pointerEvents = 'none';
     document.body.appendChild(overlay);
   };
   
-  // Función para manejar el fin del arrastre de una carta
+  // Function to handle the end of card dragging
   const handleDragEnd = (cardId: string, info: any) => {
-    console.log(`[BOARD] Fin de arrastre de carta: ${cardId}`);
+    console.log(`[BOARD] End of card drag: ${cardId}`);
     document.body.classList.remove('dragging-card');
     
-    // Eliminar el overlay global
+    // Remove the global overlay
     const overlay = document.getElementById('global-drag-overlay');
     if (overlay) {
       document.body.removeChild(overlay);
     }
     
-    // Obtenemos las coordenadas del punto final del arrastre
+    // Get the coordinates of the drag end point
     const endPoint = { x: info.point.x, y: info.point.y };
     
-    // Comprobamos si la carta ha sido soltada en alguna zona de destino
+    // Check if the card has been dropped in any target zone
     let cardPlayed = false;
     
-    // Verificamos la zona de Story Points con un margen de tolerancia
+    // Check the Story Points zone with a tolerance margin
     if (storyPointsZoneRef.current) {
       const rect = storyPointsZoneRef.current.getBoundingClientRect();
-      const margin = 30; // Aumentamos aún más el margen de tolerancia
+      const margin = 30; // Increase tolerance margin even more
       if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
           endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
-        // La carta se ha soltado en la zona de Story Points
+        // The card has been dropped in the Story Points zone
         if (cardsPlayedThisTurn < maxCardsPerTurn) {
-          console.log(`[BOARD] Carta soltada en zona de Story Points: ${cardId}`);
+          console.log(`[BOARD] Card dropped in Story Points zone: ${cardId}`);
           
-          // Jugamos la carta
+          // Play the card
           playCard(cardId);
           
-          // Calculamos la puntuación actual
+          // Calculate current score
           const score = calculateScore();
-          console.log(`[BOARD] Carta jugada. Nueva puntuación: ${score}`);
+          console.log(`[BOARD] Card played. New score: ${score}`);
           
-          // Mostramos el resultado
+          // Show the result
           const cardToPlay = hand.find(card => card.id === cardId);
           if (cardToPlay) {
             setPlayResult({ card: cardToPlay, score });
@@ -236,168 +236,168 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
           
           cardPlayed = true;
         } else {
-          console.log(`[BOARD] No se puede jugar más cartas este turno (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
+          console.log(`[BOARD] Cannot play more cards this turn (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
         }
       }
     }
     
-    // Verificamos la zona de Backlog con un margen de tolerancia
+    // Check the Backlog zone with a tolerance margin
     if (!cardPlayed && backlogZoneRef.current) {
       const rect = backlogZoneRef.current.getBoundingClientRect();
-      const margin = 30; // Aumentamos aún más el margen de tolerancia
+      const margin = 30; // Increase tolerance margin even more
       if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
           endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
-        // La carta se ha soltado en la zona de Backlog
+        // The card has been dropped in the Backlog zone
         if (cardsDiscardedThisTurn < maxDiscardsPerTurn) {
-          console.log(`[BOARD] Carta soltada en zona de Backlog: ${cardId}`);
+          console.log(`[BOARD] Card dropped in Backlog zone: ${cardId}`);
           
-          // Descartamos la carta
+          // Discard the card
           discardCard(cardId);
-          console.log(`[BOARD] Carta descartada.`);
+          console.log(`[BOARD] Card discarded.`);
           
-          // Limpiamos cualquier resultado anterior
+          // Clear any previous result
           setPlayResult(null);
         } else {
-          console.log(`[BOARD] No se puede descartar más cartas este turno (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
+          console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
         }
       }
     }
     
-    // Al final, limpiamos el estado de arrastre
+    // Finally, clear the drag state
     setDraggingCard(null);
   };
   
-  // Manejador para seleccionar una carta (mantener para compatibilidad)
+  // Handler to select a card (keep for compatibility)
   const handleSelectCard = (card: CardType) => {
-    console.log(`[BOARD] Carta seleccionada: ${card.id} - ${card.name}`);
+    console.log(`[BOARD] Card selected: ${card.id} - ${card.name}`);
     
-    // Si la carta ya está seleccionada, la deseleccionamos
+    // If the card is already selected, deselect it
     if (selectedCard === card.id) {
       setSelectedCard(null);
       return;
     }
     
-    // Si no, la seleccionamos
+    // Otherwise, select it
     setSelectedCard(card.id);
-    setPlayResult(null); // Limpiamos el resultado anterior
+    setPlayResult(null); // Clear previous result
   };
   
-  // Manejador para jugar la carta seleccionada (mantener para compatibilidad)
+  // Handler to play the selected card (keep for compatibility)
   const handlePlayCard = () => {
     if (!selectedCard) return;
     
-    console.log(`[BOARD] Intentando jugar carta: ${selectedCard}`);
+    console.log(`[BOARD] Attempting to play card: ${selectedCard}`);
     
-    // Solo permitimos jugar si no hemos alcanzado el límite
+    // Only allow playing if we haven't reached the limit
     if (cardsPlayedThisTurn >= maxCardsPerTurn) {
-      console.log(`[BOARD] No se puede jugar más cartas este turno (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
+      console.log(`[BOARD] Cannot play more cards this turn (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
       return;
     }
     
-    // Buscamos la carta seleccionada en la mano
+    // Find the selected card in hand
     const cardToPlay = hand.find(card => card.id === selectedCard);
     if (!cardToPlay) {
-      console.log(`[BOARD] Error: Carta no encontrada en la mano`);
+      console.log(`[BOARD] Error: Card not found in hand`);
       return;
     }
     
-    // Jugamos la carta (pasamos el ID)
+    // Play the card (pass the ID)
     playCard(selectedCard);
     
-    // Calculamos la puntuación actual
+    // Calculate current score
     const score = calculateScore();
-    console.log(`[BOARD] Carta jugada. Nueva puntuación: ${score}`);
+    console.log(`[BOARD] Card played. New score: ${score}`);
     
-    // Mostramos el resultado
+    // Show the result
     setPlayResult({ card: cardToPlay, score });
     
-    // Limpiamos la selección
+    // Clear the selection
     setSelectedCard(null);
   };
 
-  // Estado para mostrar resultados de jugar una carta
+  // State to show results of playing a card
   const [playResult, setPlayResult] = useState<{card: CardType, score: number} | null>(null);
   
-  // Función para mostrar el resultado de jugar una carta
+  // Function to show the result of playing a card
   const showPlayResult = (card: CardType, score: number) => {
     setPlayResult({card, score});
     setTimeout(() => setPlayResult(null), 3000);
   };
 
-  // Manejador para descartar la carta seleccionada (mantener para compatibilidad)
+  // Handler to discard the selected card (keep for compatibility)
   const handleDiscardCard = () => {
     if (!selectedCard) return;
     
-    console.log(`[BOARD] Intentando descartar carta: ${selectedCard}`);
+    console.log(`[BOARD] Attempting to discard card: ${selectedCard}`);
     
-    // Solo permitimos descartar si no hemos alcanzado el límite
+    // Only allow discarding if we haven't reached the limit
     if (cardsDiscardedThisTurn >= maxDiscardsPerTurn) {
-      console.log(`[BOARD] No se puede descartar más cartas este turno (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
+      console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
       return;
     }
     
-    // Buscamos la carta seleccionada en la mano
+    // Find the selected card in hand
     const cardToDiscard = hand.find(card => card.id === selectedCard);
     if (!cardToDiscard) {
-      console.log(`[BOARD] Error: Carta no encontrada en la mano`);
+      console.log(`[BOARD] Error: Card not found in hand`);
       return;
     }
     
-    // Descartamos la carta (pasamos el ID)
+    // Discard the card (pass the ID)
     discardCard(selectedCard);
-    console.log(`[BOARD] Carta descartada.`);
+    console.log(`[BOARD] Card discarded.`);
     
-    // Limpiamos la selección
+    // Clear the selection
     setSelectedCard(null);
     setPlayResult(null);
   };
   
-  // Manejador para robar una carta manualmente
+  // Handler to manually draw a card
   const handleDrawCard = () => {
     if (hand.length >= 3) {
-      console.log('[BOARD] No se pueden robar más cartas. Mano llena.');
+      console.log('[BOARD] Cannot draw more cards. Hand is full.');
       return;
     }
     
-    console.log('[BOARD] Robando carta');
+    console.log('[BOARD] Drawing card');
     drawCard();
   };
   
-  // Manejador para terminar el turno
+  // Handler to end the turn
   const handleEndTurn = () => {
-    console.log('[BOARD] Finalizando turno');
+    console.log('[BOARD] Ending turn');
     setPlayResult(null);
     endTurn();
-    // Activamos el flag para robar cartas automáticamente después de terminar el turno
+    // Activate the flag to automatically draw cards after ending the turn
     setShouldDrawAfterTurn(true);
   };
   
-  // Manejador para abrir la tienda
+  // Handler to open the shop
   const handleOpenShop = () => {
-    console.log('[BOARD] Abriendo tienda');
+    console.log('[BOARD] Opening shop');
     openShop();
   };
   
-  // Obtener estado de la tienda
+  // Get shop state
   const { canVisitShop } = useGameStore();
   
-  // Determinar si hay cartas para robar
-  const canDrawCard = hand.length < 3; // Máximo 3 cartas en mano
+  // Determine if there are cards to draw
+  const canDrawCard = hand.length < 3; // Maximum 3 cards in hand
   
-  // Determinar si podemos jugar más cartas
+  // Determine if we can play more cards
   const canPlayMoreCards = cardsPlayedThisTurn < maxCardsPerTurn;
   
-  // Determinar si podemos descartar más cartas
+  // Determine if we can discard more cards
   const canDiscardMoreCards = cardsDiscardedThisTurn < maxDiscardsPerTurn;
   
-  // Renderizar la carta que se está arrastrando actualmente en el body
+  // Render the card currently being dragged in the body
   const renderDraggingCardPortal = () => {
     if (!draggingCard || !isMouseDown) return null;
     
     const draggedCard = hand.find(card => card.id === draggingCard);
     if (!draggedCard || typeof document === 'undefined') return null;
     
-    // Calculamos la posición para que la carta esté centrada en el cursor
+    // Calculate the position to center the card on the cursor
     const cardStyle = {
       position: 'fixed' as 'fixed',
       left: `${cursorPosition.x}px`,
@@ -420,32 +420,32 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   
   return (
     <div ref={boardRef} className="bg-gray-900 p-4 rounded-lg shadow-lg overflow-hidden relative">
-      <h2 className="text-xl font-bold text-white mb-4">Tablero de Desarrollo</h2>
+      <h2 className="text-xl font-bold text-white mb-4">Development Board</h2>
       
-      {/* Estadísticas de acciones por turno */}
+      {/* Actions per turn stats */}
       <div className="flex justify-between mb-4 bg-gray-800 p-3 rounded-lg">
         <div className="text-center">
-          <div className="text-sm text-blue-400">Story Points disponibles</div>
+          <div className="text-sm text-blue-400">Available Story Points</div>
           <div className="font-bold text-white">{cardsPlayedThisTurn}/{maxCardsPerTurn}</div>
         </div>
         <div className="text-center">
-          <div className="text-sm text-red-400">Espacio en Backlog</div>
+          <div className="text-sm text-red-400">Backlog Space</div>
           <div className="font-bold text-white">{cardsDiscardedThisTurn}/{maxDiscardsPerTurn}</div>
         </div>
       </div>
       
-      {/* Zonas de destino para arrastrar cartas */}
+      {/* Drop zones for dragging cards */}
       <div className="grid grid-cols-2 gap-4 mb-6 relative z-0">
         {dropZones.map(zone => {
-          // Determinar el color de la zona basado en su estado
-          let zoneColor = 'bg-gray-700/70'; // Color por defecto (deshabilitado)
+          // Determine zone color based on its state
+          let zoneColor = 'bg-gray-700/70'; // Default color (disabled)
           
           if (zone.isEnabled) {
-            // Si la zona está habilitada, usar un color muy suave por defecto
+            // If the zone is enabled, use a very soft color by default
             if (zone.id === 'storyPoints') {
-              zoneColor = draggingCard ? 'bg-blue-600/80' : 'bg-blue-600/30'; // Azul muy suave para story points, más intenso al arrastrar
+              zoneColor = draggingCard ? 'bg-blue-600/80' : 'bg-blue-600/30'; // Very soft blue for story points, more intense when dragging
             } else {
-              zoneColor = draggingCard ? 'bg-red-600/80' : 'bg-red-600/30'; // Rojo muy suave para backlog, más intenso al arrastrar
+              zoneColor = draggingCard ? 'bg-red-600/80' : 'bg-red-600/30'; // Very soft red for backlog, more intense when dragging
             }
           }
           
@@ -459,8 +459,8 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
               animate={{
                 boxShadow: draggingCard && zone.isEnabled
                   ? zone.id === 'storyPoints' 
-                    ? '0 0 20px rgba(59, 130, 246, 0.2)' // Azul para story points
-                    : '0 0 20px rgba(239, 68, 68, 0.2)' // Rojo para backlog
+                    ? '0 0 20px rgba(59, 130, 246, 0.2)' // Blue for story points
+                    : '0 0 20px rgba(239, 68, 68, 0.2)' // Red for backlog
                   : 'none',
                 scale: draggingCard && zone.isEnabled ? 1.02 : 1
               }}
@@ -469,7 +469,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
               <div className="text-xs text-gray-300 text-center">{zone.description}</div>
               {!zone.isEnabled && (
                 <div className="text-xs text-gray-400 mt-1">
-                  (Límite alcanzado: {zone.id === 'storyPoints' 
+                  (Limit reached: {zone.id === 'storyPoints' 
                     ? `${cardsPlayedThisTurn}/${maxCardsPerTurn}` 
                     : `${cardsDiscardedThisTurn}/${maxDiscardsPerTurn}`})
                 </div>
@@ -479,9 +479,9 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
         })}
       </div>
       
-      {/* Mano del jugador */}
+      {/* Player's hand */}
       <div className="mb-12">
-        <h3 className="text-lg font-semibold text-white mb-6">Tu Mano</h3>
+        <h3 className="text-lg font-semibold text-white mb-6">Your Hand</h3>
         <div className="overflow-x-auto">
           <div className="flex justify-center space-x-6 p-10 min-h-[300px] relative">
             <AnimatePresence>
@@ -496,7 +496,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                   whileHover={{ y: -10 }}
                   className="card-container"
                 >
-                  {/* Solo mostramos la carta original si no se está arrastrando */}
+                  {/* Only show the original card if it's not being dragged */}
                   {draggingCard !== card.id && (
                     <Card 
                       card={card} 
@@ -504,7 +504,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                       isSelected={selectedCard === card.id}
                     />
                   )}
-                  {/* Si se está arrastrando, mostramos un placeholder translúcido */}
+                  {/* If it's being dragged, show a translucent placeholder */}
                   {draggingCard === card.id && (
                     <div className="w-52 h-[280px] rounded-xl border-2 border-dashed border-white/30 bg-white/5"></div>
                   )}
@@ -515,7 +515,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
         </div>
       </div>
       
-      {/* Acciones del jugador */}
+      {/* Player actions */}
       <div className="flex flex-wrap gap-5 justify-center mt-8 pb-2">
         <button
           onClick={handleDrawCard}
@@ -529,7 +529,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            Robar Carta
+            Draw Card
           </span>
         </button>
         
@@ -541,7 +541,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Finalizar Sprint
+            End Sprint
           </span>
         </button>
         
@@ -566,7 +566,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            Contratar {canVisitShop ? '(¡Disponible!)' : '(Completa benchmark)'}
+            Hire {canVisitShop ? '(Available!)' : '(Complete benchmark)'}
           </span>
         </button>
         
@@ -579,13 +579,13 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Volver al Menú
+              Back to Menu
             </span>
           </button>
         )}
       </div>
       
-      {/* Portal para cartas arrastrables - Ahora directamente en el body y solo si isMouseDown es true */}
+      {/* Portal for draggable cards - Now directly in the body and only if isMouseDown is true */}
       {renderDraggingCardPortal()}
     </div>
   );

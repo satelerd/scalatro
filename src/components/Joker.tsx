@@ -9,7 +9,7 @@ interface JokerProps {
   canAfford?: boolean;
 }
 
-// Función para obtener el color según la rareza
+// Function to get color based on rarity
 const getRarityColor = (rarity: CardRarity) => {
   switch (rarity) {
     case CardRarity.COMMON:
@@ -25,17 +25,17 @@ const getRarityColor = (rarity: CardRarity) => {
   }
 };
 
-// Función para determinar si el joker es de tipo GPU
+// Function to determine if joker is a GPU type
 const isGPU = (name: string): boolean => {
   return name.includes('NVIDIA') || name.includes('RTX') || name.includes('GPU');
 };
 
-// Función para determinar si el joker es de tipo Data
+// Function to determine if joker is a Data type
 const isData = (name: string): boolean => {
-  return name.includes('Datos') || name.includes('Data');
+  return name.includes('Data') || name.includes('Datos');
 };
 
-// Función para obtener un icono para el joker
+// Function to get an icon for the joker
 const getJokerIcon = (joker: JokerType): string => {
   if (isGPU(joker.name)) return '🎮';
   if (isData(joker.name)) return '📊';
@@ -43,14 +43,14 @@ const getJokerIcon = (joker: JokerType): string => {
 };
 
 const Joker: React.FC<JokerProps> = ({ joker, onClick, disabled = false, canAfford = true }) => {
-  // Handler para click en el joker
+  // Handler for joker click
   const handleClick = () => {
     if (!disabled && canAfford && onClick) {
       onClick(joker);
     }
   };
 
-  // Calcular estilo basado en propiedades
+  // Calculate style based on properties
   const isDisabled = disabled || !canAfford;
 
   return (
@@ -68,25 +68,25 @@ const Joker: React.FC<JokerProps> = ({ joker, onClick, disabled = false, canAffo
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Cabecera del joker */}
+      {/* Joker header */}
       <div className="bg-gradient-to-r from-yellow-500 to-amber-600 p-2 rounded-t-lg flex justify-between items-center">
         <span className="font-bold text-white">{joker.name}</span>
         <span className="text-xl">{getJokerIcon(joker)}</span>
       </div>
       
-      {/* Cuerpo del joker */}
+      {/* Joker body */}
       <div className="p-3 flex flex-col h-[calc(100%-40px)]">
-        {/* Descripción */}
+        {/* Description */}
         <div className="text-xs italic mb-4 flex-grow">
           {joker.description}
         </div>
         
-        {/* Precio */}
+        {/* Price */}
         <div className="bg-amber-100 rounded-md p-1 mb-2 flex justify-center items-center">
           <span className="font-bold text-amber-800">${joker.cost}</span>
         </div>
         
-        {/* Bonificaciones */}
+        {/* Bonuses */}
         <div className="flex justify-between">
           {joker.chipBonus > 0 && (
             <div className="flex flex-col items-center">
@@ -104,7 +104,7 @@ const Joker: React.FC<JokerProps> = ({ joker, onClick, disabled = false, canAffo
         </div>
       </div>
       
-      {/* Indicador de que no se puede comprar */}
+      {/* Indicator that it cannot be purchased */}
       {!canAfford && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-black bg-opacity-40 rounded-full p-2">

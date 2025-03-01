@@ -113,187 +113,169 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
   
   discardCard: (cardId: string) => {
-    const { hand, cardsDiscardedThisTurn, maxDiscardsPerTurn } = get();
+    const { 
+      hand, 
+      discardPile, 
+      cardsDiscardedThisTurn, 
+      maxDiscardsPerTurn 
+    } = get();
     
-    // Verificamos si ya descartamos el máximo de cartas por turno
+    // Check if we can discard another card this turn
     if (cardsDiscardedThisTurn >= maxDiscardsPerTurn) {
-      console.log(`[LOG] Ya has descartado el máximo de ${maxDiscardsPerTurn} cartas este turno`);
+      console.log(`[LOG] Cannot discard more cards this turn`);
       return;
     }
     
-    // Buscamos la carta en la mano
-    const cardToDiscard = hand.find(card => card.id === cardId);
-    if (!cardToDiscard) return;
+    // Find the card in the hand
+    const cardIndex = hand.findIndex(card => card.id === cardId);
+    if (cardIndex === -1) {
+      console.log(`[LOG] Card not found in hand: ${cardId}`);
+      return;
+    }
     
-    // Actualizamos el estado
+    // Remove card from hand and add to discard pile
+    const newHand = [...hand];
+    const [removedCard] = newHand.splice(cardIndex, 1);
+    
+    // Update the game state
     set({
-      hand: hand.filter(card => card.id !== cardId),
-      discardPile: [...get().discardPile, cardToDiscard],
-      cardsDiscardedThisTurn: cardsDiscardedThisTurn + 1,
+      hand: newHand,
+      discardPile: [...discardPile, removedCard],
+      cardsDiscardedThisTurn: cardsDiscardedThisTurn + 1
     });
     
-    console.log(`[LOG] Carta descartada: ${cardToDiscard.name}`);
-    console.log(`[LOG] Cartas descartadas este turno: ${cardsDiscardedThisTurn + 1}/${maxDiscardsPerTurn}`);
+    console.log(`[LOG] Card discarded: ${removedCard.name}`);
+    console.log(`[LOG] Cards discarded this turn: ${cardsDiscardedThisTurn + 1}/${maxDiscardsPerTurn}`);
   },
   
   // Acciones de jokers
   buyJoker: (jokerId: string) => {
-    const { activeJokers, money } = get();
+    const { 
+      round, 
+      money, 
+      activeJokers,
+      chips,
+      multiplier,
+      maxCardsPerTurn,
+      maxDiscardsPerTurn
+    } = get();
     
-    // Obtenemos los jokers disponibles en la tienda actual
-    const shopJokers = getShopJokers(get().round);
-    const jokerToBuy = shopJokers.find(joker => joker.id === jokerId);
+    // Get available jokers from the shop
+    const availableJokers = getShopJokers(round);
+    
+    // Find the joker to buy
+    const jokerToBuy = availableJokers.find(joker => joker.id === jokerId);
     
     if (!jokerToBuy) {
-      console.log(`[LOG] El joker no se encontró en la tienda`);
+      console.log(`[LOG] Joker not found in shop: ${jokerId}`);
       return;
     }
     
-    // Verificamos si tenemos suficiente dinero
+    // Check if we have enough money
     if (money < jokerToBuy.cost) {
-      console.log(`[LOG] No hay suficiente dinero para comprar ${jokerToBuy.name}`);
+      console.log(`[LOG] Not enough money to buy joker. Have: ${money}, Need: ${jokerToBuy.cost}`);
       return;
     }
     
-    // Creamos una copia del joker con un ID único para evitar problemas de duplicados
-    const purchasedJoker = {
-      ...jokerToBuy,
-      id: `${jokerId}-${uuidv4().substring(0, 8)}` // Asignamos un ID único
-    };
+    // Variables to track special effects
+    let newMaxCards = maxCardsPerTurn;
+    let newMaxDiscards = maxDiscardsPerTurn;
     
-    // Determinamos si este joker tiene efectos especiales (slots adicionales)
-    // Esta es una lógica temporal basada en el nombre; idealmente vendría de datos estructurados
-    let specialEffect = purchasedJoker.specialEffect || [];
-    
-    if (!specialEffect.length) {
-      // Si no tiene efectos especiales, los inferimos del nombre
-      if (jokerToBuy.name.toLowerCase().includes('developer') || 
-          jokerToBuy.name.toLowerCase().includes('ingeniero') ||
-          jokerToBuy.name.toLowerCase().includes('programador')) {
-        specialEffect.push('card_slot');
+    // Apply special effects if any
+    if (jokerToBuy.specialEffect) {
+      // Add card slot if the joker has that effect
+      if (jokerToBuy.specialEffect.includes('card_slot')) {
+        newMaxCards += 1;
+        console.log(`[LOG] Increased max cards per turn to ${newMaxCards}`);
       }
       
-      if (jokerToBuy.name.toLowerCase().includes('scrum') || 
-          jokerToBuy.name.toLowerCase().includes('agile') ||
-          jokerToBuy.name.toLowerCase().includes('product')) {
-        specialEffect.push('discard_slot');
+      // Add discard slot if the joker has that effect
+      if (jokerToBuy.specialEffect.includes('discard_slot')) {
+        newMaxDiscards += 1;
+        console.log(`[LOG] Increased max discards per turn to ${newMaxDiscards}`);
       }
-      
-      purchasedJoker.specialEffect = specialEffect;
     }
     
-    // Aplicar efectos inmediatos si hay slots adicionales
-    let newMaxCardsPerTurn = get().maxCardsPerTurn;
-    let newMaxDiscardsPerTurn = get().maxDiscardsPerTurn;
+    // Add joker to active jokers, decrease money, apply bonuses
+    set({
+      activeJokers: [...activeJokers, jokerToBuy],
+      money: money - jokerToBuy.cost,
+      chips: chips + (jokerToBuy.chipBonus || 0),
+      multiplier: multiplier + (jokerToBuy.multiplierBonus || 0),
+      maxCardsPerTurn: newMaxCards,
+      maxDiscardsPerTurn: newMaxDiscards
+    });
     
-    if (specialEffect.includes('card_slot')) {
-      newMaxCardsPerTurn += 1;
-      console.log(`[LOG] Joker añade +1 slot para jugar cartas (total: ${newMaxCardsPerTurn})`);
-    }
-    
-    if (specialEffect.includes('discard_slot')) {
-      newMaxDiscardsPerTurn += 1;
-      console.log(`[LOG] Joker añade +1 slot para descartar cartas (total: ${newMaxDiscardsPerTurn})`);
-    }
-    
-    // Aplicamos el efecto del joker (bonus de chips y multiplicador)
-    const newChips = get().chips + purchasedJoker.chipBonus;
-    const newMultiplier = get().multiplier + purchasedJoker.multiplierBonus;
-    
-    console.log(`[LOG] Antes de comprar - Jokers activos: ${activeJokers.length}, Chips: ${get().chips}, Multiplicador: ${get().multiplier}`);
-    console.log(`[LOG] Dinero antes de compra: $${money}, Costo del joker: $${purchasedJoker.cost}`);
-    
-    try {
-      // Actualizamos el estado
-      set({
-        activeJokers: [...activeJokers, purchasedJoker],
-        money: money - purchasedJoker.cost,
-        chips: newChips,
-        multiplier: newMultiplier,
-        maxCardsPerTurn: newMaxCardsPerTurn,
-        maxDiscardsPerTurn: newMaxDiscardsPerTurn
-      });
-      
-      console.log(`[LOG] Joker comprado: ${purchasedJoker.name} por $${purchasedJoker.cost}`);
-      console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}, Dinero: ${money - purchasedJoker.cost}`);
-      console.log(`[LOG] Total de jokers activos: ${activeJokers.length + 1}`);
-      
-      // Verificamos que el joker se haya añadido correctamente y el dinero se haya descontado
-      setTimeout(() => {
-        const currentJokers = get().activeJokers;
-        const currentMoney = get().money;
-        console.log(`[LOG] Verificación - Jokers activos después de compra: ${currentJokers.length}`);
-        console.log(`[LOG] Verificación - Dinero después de compra: $${currentMoney}`);
-        currentJokers.forEach((j, index) => {
-          console.log(`[LOG] Joker activo #${index+1}: ${j.name}, ID: ${j.id}`);
-        });
-      }, 100);
-    } catch (error) {
-      console.error('[ERROR] Error al comprar joker:', error);
-    }
+    console.log(`[LOG] Joker purchased: ${jokerToBuy.name} for ${jokerToBuy.cost} coins`);
+    console.log(`[LOG] Money after purchase: ${money - jokerToBuy.cost}`);
+    console.log(`[LOG] Active jokers: ${activeJokers.length + 1}`);
   },
   
-  // Acciones de turno
+  // Calculate current score
   calculateScore: () => {
     const { chips, multiplier } = get();
-    const score = Math.floor(chips * multiplier);
-    
+    const score = chips * multiplier;
     set({ score });
-    
-    console.log(`[LOG] Puntuación calculada: ${score} (${chips} chips × ${multiplier} multiplicador)`);
+    console.log(`[LOG] Score calculated: ${score} (${chips} × ${multiplier})`);
     return score;
   },
   
+  // End the current turn and prepare the next one
   endTurn: () => {
-    const { score, currentBenchmark, marketShare, round, activeJokers } = get();
+    const { 
+      round, 
+      chips, 
+      multiplier, 
+      marketShare,
+      money,
+      currentBenchmark,
+      activeJokers
+    } = get();
     
-    // Calculamos la puntuación final
-    const finalScore = get().calculateScore();
+    // Calculate current score
+    const score = get().calculateScore();
     
-    // Comprobamos si pasamos el benchmark actual
-    let newMarketShare = marketShare;
-    let nextBenchmark = currentBenchmark;
-    let newMoney = get().money;
-    let gameOver = false;
-    let canVisitShop = false;
+    // Check if we've beaten the benchmark
+    const benchmarkBeaten = score >= currentBenchmark.targetScore;
     
-    if (finalScore >= currentBenchmark.targetScore) {
-      // Superamos el benchmark
-      console.log(`[LOG] ¡Benchmark superado! ${currentBenchmark.name}`);
-      
-      // Actualizamos la cuota de mercado
-      newMarketShare += currentBenchmark.marketShareReward;
-      
-      // Añadimos dinero como recompensa
-      newMoney += 50 * round;
-      
-      // Permitimos visitar la tienda
-      canVisitShop = true;
-      
-      // Obtenemos el siguiente benchmark
-      const next = getNextBenchmark(currentBenchmark.id);
-      if (next) {
-        nextBenchmark = next;
-      } else {
-        // Si no hay más benchmarks, has ganado el juego
-        console.log(`[LOG] ¡Has superado todos los benchmarks! Eres el líder del mercado.`);
-        gameOver = true;
-      }
+    // Determine if we can visit the shop this turn
+    const canVisitShop = benchmarkBeaten;
+    
+    // Calculate new market share
+    const benchmarkPercentage = benchmarkBeaten ? 1 : score / currentBenchmark.targetScore;
+    const marketShareIncrease = benchmarkPercentage * 5; // Max 5% per turn
+    const newMarketShare = marketShare + marketShareIncrease;
+    
+    // Calculate new money based on market share
+    const moneyEarned = Math.floor(marketShareIncrease * 2);
+    const newMoney = money + moneyEarned + (benchmarkBeaten ? currentBenchmark.marketShareReward : 0);
+    
+    console.log(`[LOG] Market share increased by ${marketShareIncrease.toFixed(2)}% to ${newMarketShare.toFixed(2)}%`);
+    console.log(`[LOG] Earned ${moneyEarned} coins from market share`);
+    
+    if (benchmarkBeaten) {
+      console.log(`[LOG] Benchmark beaten! Earned ${currentBenchmark.marketShareReward} bonus coins`);
     } else {
-      // No superamos el benchmark
-      console.log(`[LOG] Benchmark fallido. Puntuación: ${finalScore}, Objetivo: ${currentBenchmark.targetScore}`);
-      
-      // Perdemos cuota de mercado
-      newMarketShare = Math.max(0, newMarketShare - 2);
-      
-      // Si la cuota de mercado llega a 0, game over
-      if (newMarketShare <= 0) {
-        console.log(`[LOG] ¡Has perdido toda tu cuota de mercado! Fin del juego.`);
-        gameOver = true;
-      }
+      console.log(`[LOG] Benchmark progress: ${(benchmarkPercentage * 100).toFixed(2)}%`);
     }
     
-    // Calculamos las bonificaciones de los jokers activos
+    // Determine next benchmark
+    const nextBenchmark = benchmarkBeaten ? {
+      id: uuidv4(),
+      name: `Series ${String.fromCharCode(65 + Math.min(round / 3, 25))}`, // A, B, C, etc.
+      targetScore: Math.floor(currentBenchmark.targetScore * 1.5),
+      marketShareReward: Math.floor(currentBenchmark.marketShareReward * 1.5),
+      completed: false
+    } : currentBenchmark;
+    
+    // Check if game is over (90% market share or more)
+    const gameOver = newMarketShare >= 90;
+    
+    if (gameOver) {
+      console.log(`[LOG] Game over! Final market share: ${newMarketShare.toFixed(2)}%`);
+    }
+    
+    // Calculate joker bonuses
     let totalChipBonus = 0;
     let totalMultiplierBonus = 0;
     let cardBonus = 0;
@@ -315,7 +297,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       }
     });
     
-    console.log(`[LOG] Bonificaciones de jokers - Chips: ${totalChipBonus}, Mult: ${totalMultiplierBonus}, Card slots: ${cardBonus}, Discard slots: ${discardBonus}`);
+    console.log(`[LOG] Joker bonuses - Chips: ${totalChipBonus}, Mult: ${totalMultiplierBonus}, Card slots: ${cardBonus}, Discard slots: ${discardBonus}`);
     
     // Preparamos el siguiente turno
     set({
@@ -361,20 +343,20 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       }, 500);
     }
     
-    console.log(`[LOG] Fin del turno. Nueva ronda: ${round + 1}`);
-    console.log(`[LOG] Jokers activos después de fin de turno: ${get().activeJokers.length}`);
+    console.log(`[LOG] End of turn. New round: ${round + 1}`);
+    console.log(`[LOG] Active jokers after end of turn: ${get().activeJokers.length}`);
   },
   
   // Acciones de tienda
   openShop: () => {
     // Solo permitimos abrir la tienda si canVisitShop es true
     if (!get().canVisitShop && !get().gameOver) {
-      console.log(`[LOG] Tienda no disponible aún. Completa el benchmark actual primero.`);
+      console.log(`[LOG] Shop not available yet. Complete the current benchmark first.`);
       return;
     }
     
     set({ shopOpen: true });
-    console.log(`[LOG] Tienda abierta`);
+    console.log(`[LOG] Shop opened`);
   },
   
   closeShop: () => {
@@ -382,12 +364,12 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       shopOpen: false,
       canVisitShop: false // Reseteamos la bandera al cerrar la tienda
     });
-    console.log(`[LOG] Tienda cerrada`);
+    console.log(`[LOG] Shop closed`);
   },
   
   // Función para reiniciar el juego
   resetGame: () => {
-    console.log(`[LOG] Reiniciando el juego...`);
+    console.log(`[LOG] Restarting the game...`);
     set({ ...initialState });
   },
   
@@ -402,6 +384,6 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     };
     
     set({ currentBenchmark: adjustedBenchmark });
-    console.log(`[LOG] Dificultad ajustada: ${multiplier}x`);
+    console.log(`[LOG] Difficulty adjusted: ${multiplier}x`);
   },
 })); 

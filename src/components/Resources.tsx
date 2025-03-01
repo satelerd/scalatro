@@ -12,31 +12,30 @@ const Resources: React.FC = () => {
     marketShare,
     currentBenchmark,
     round,
-    difficulty,
   } = useGameStore();
   
-  // Obtener todos los benchmarks para mostrar progreso
+  // Get all benchmarks to show progress
   const allBenchmarks = getAllBenchmarks();
   
-  // Calcular el progreso actual hacia el siguiente benchmark
+  // Calculate current progress towards the next benchmark
   const calculateBenchmarkProgress = () => {
-    if (!currentBenchmark) return 100; // Si no hay benchmark, mostrar 100%
+    if (!currentBenchmark) return 100; // If no benchmark, show 100%
     
-    // Calculamos qué porcentaje del objetivo hemos completado
+    // Calculate what percentage of the goal we've completed
     const progress = Math.min(Math.floor((score / currentBenchmark.targetScore) * 100), 100);
     return progress;
   };
   
-  // Verificar si se ha completado el benchmark actual
+  // Check if the current benchmark has been completed
   const isBenchmarkCompleted = () => {
     if (!currentBenchmark) return true;
     return score >= currentBenchmark.targetScore;
   };
   
-  // Estado para la animación de puntuación
+  // State for score animation
   const [displayScore, setDisplayScore] = useState(score);
   useEffect(() => {
-    // Actualizar la puntuación con una pequeña animación
+    // Update score with a small animation
     const difference = score - displayScore;
     if (difference !== 0) {
       const step = difference > 0 ? 
@@ -51,7 +50,7 @@ const Resources: React.FC = () => {
     }
   }, [score, displayScore]);
   
-  // Clases CSS condicionales para cuota de mercado
+  // Conditional CSS classes for market share
   const getMarketShareClass = () => {
     if (marketShare >= 75) return 'text-green-400';
     if (marketShare >= 50) return 'text-blue-400';
@@ -61,9 +60,9 @@ const Resources: React.FC = () => {
   
   return (
     <div className="bg-gray-900 p-4 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold text-white mb-4">Recursos y Estadísticas</h2>
+      <h2 className="text-xl font-bold text-white mb-4">Resources and Stats</h2>
       
-      {/* Puntuación y ronda actual */}
+      {/* Score and current round */}
       <div className="mb-4 grid grid-cols-1 gap-3">
         <div className="bg-gray-800 p-3 rounded-lg">
           <div className="text-sm text-gray-400 mb-1">Sprint</div>
@@ -71,12 +70,12 @@ const Resources: React.FC = () => {
         </div>
         
         <div className="bg-gray-800 p-3 rounded-lg">
-          <div className="text-sm text-gray-400 mb-1">Puntuación</div>
+          <div className="text-sm text-gray-400 mb-1">Score</div>
           <div className="text-2xl font-bold text-white">{displayScore}</div>
         </div>
       </div>
       
-      {/* Chips y multiplicador */}
+      {/* Chips and multiplier */}
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div className="bg-blue-900/60 p-3 rounded-lg text-center">
           <div className="text-sm text-blue-300 mb-1">Pre-training</div>
@@ -89,10 +88,10 @@ const Resources: React.FC = () => {
         </div>
       </div>
       
-      {/* Dinero y cuota de mercado */}
+      {/* Money and market share */}
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div className="bg-green-900/60 p-3 rounded-lg text-center">
-          <div className="text-sm text-green-300 mb-1">Fondos</div>
+          <div className="text-sm text-green-300 mb-1">Funds</div>
           <div className="text-xl font-bold text-white">${money}</div>
         </div>
         
@@ -102,16 +101,16 @@ const Resources: React.FC = () => {
         </div>
       </div>
       
-      {/* Benchmark actual y progreso */}
+      {/* Current benchmark and progress */}
       <div className="bg-gray-800 p-3 rounded-lg mb-4">
         <div className="flex justify-between items-center mb-2">
-          <div className="text-sm text-purple-300">Actual Benchmark:</div>
+          <div className="text-sm text-purple-300">Current Benchmark:</div>
           <div className="text-sm font-bold text-white">
-            {currentBenchmark ? currentBenchmark.name : 'Completados todos'}
+            {currentBenchmark ? currentBenchmark.name : 'All Completed'}
           </div>
         </div>
         
-        {/* Barra de progreso */}
+        {/* Progress bar */}
         <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
           <motion.div 
             className="h-full bg-gradient-to-r from-purple-600 to-purple-400"
@@ -126,31 +125,23 @@ const Resources: React.FC = () => {
             {score} / {currentBenchmark ? currentBenchmark.targetScore : '-'}
           </div>
           <div className="text-xs text-gray-400">
-            {isBenchmarkCompleted() ? '¡Completado!' : `${calculateBenchmarkProgress()}%`}
+            {isBenchmarkCompleted() ? 'Completed!' : `${calculateBenchmarkProgress()}%`}
           </div>
         </div>
         
         {isBenchmarkCompleted() && currentBenchmark && (
           <div className="mt-2 text-xs text-green-400 flex items-center">
             <span className="mr-1">✓</span> 
-            ¡Benchmark completado! +{currentBenchmark.marketShareReward}% cuota de mercado
+            Benchmark completed! +{currentBenchmark.marketShareReward}% market share
           </div>
         )}
       </div>
       
-      {/* Dificultad actual */}
+      {/* Current difficulty - We'll show a simplified version since we don't have direct access to difficulty */}
       <div className="bg-gray-800 p-3 rounded-lg">
-        <div className="text-sm text-gray-400 mb-1">Dificultad</div>
-        <div className="text-md font-bold">
-          {difficulty <= 0.7 && (
-            <span className="text-green-400">Fácil (×{difficulty.toFixed(1)})</span>
-          )}
-          {difficulty > 0.7 && difficulty < 1.2 && (
-            <span className="text-yellow-400">Normal (×{difficulty.toFixed(1)})</span>
-          )}
-          {difficulty >= 1.2 && (
-            <span className="text-red-400">Difícil (×{difficulty.toFixed(1)})</span>
-          )}
+        <div className="text-sm text-gray-400 mb-1">Difficulty</div>
+        <div className="text-md font-bold text-yellow-400">
+          Normal
         </div>
       </div>
     </div>
