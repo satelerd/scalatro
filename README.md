@@ -2,37 +2,49 @@
 
 **Scalatro: Balatro but you're an AI company**
 
-Un juego de cartas roguelike donde gestionas una empresa de IA, acumulando poder computacional y recursos para superar benchmarks y dominar el mercado.
+A roguelike card game where you manage an AI company, accumulating computing power and resources to surpass benchmarks and dominate the market.
 
-## Concepto
+## Concept
 
-En Scalatro, diriges una startup de IA que compite por dominar el mercado. Gestionarás:
+In Scalatro, you run an AI startup competing to dominate the market. You'll manage:
 
-- **Chips** (Pre-training compute): La base de tus modelos
-- **Multiplicadores** (Test-time compute): La eficiencia de tus inferencias
-- **Jokers** (GPUs, datos, etc.): Powerups que potencian tu empresa
-- **Benchmarks**: Desafíos que debes superar para seguir creciendo
+- **Chips** (Pre-training compute): The foundation of your models
+- **Multipliers** (Test-time compute): The efficiency of your inferences
+- **Jokers** (GPUs, data, etc.): Powerups that boost your company
+- **Benchmarks**: Challenges you must overcome to continue growing
 
-El objetivo es construir la empresa de IA más poderosa superando benchmarks cada vez más difíciles y ganando cuota de mercado frente a la competencia.
+The goal is to build the most powerful AI company by overcoming increasingly difficult benchmarks and gaining market share against the competition.
 
-## Tecnologías
+## Technologies
 
-- Next.js con App Router
-- Bun como runtime
-- Tailwind CSS para estilos
-- Zustand para estado global
-- Framer Motion y React-Konva para animaciones
+- Next.js with App Router
+- Bun as runtime
+- Tailwind CSS for styling
+- Zustand for global state
+- Framer Motion and React-Konva for animations
 
-## Desarrollo
+## Development
 
 ```bash
-# Instalar dependencias
+# Install dependencies
 bun install
 
-# Iniciar servidor de desarrollo
+# Start development server
 bun dev
 ```
 
-## Créditos
+## Latest Updates
 
-Inspirado en el excelente juego [Balatro](https://www.playbalatro.com/) desarrollado por LocalThunk.
+- **v0.2.0 (Current)**: English translation of the entire game
+- **v0.1.0**: Initial version with game mechanics, shop functionality, and card dragging system
+
+## Roadmap
+
+- Add additional AI-themed cards and jokers
+- Implement special events system
+- Add sound effects and music
+- Expand the meta-game progression
+
+## Credits
+
+Inspired by the excellent game [Balatro](https://www.playbalatro.com/) developed by LocalThunk.
