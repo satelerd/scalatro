@@ -159,6 +159,11 @@ const Card: React.FC<CardProps> = ({
       
       {/* Card content */}
       <div className="relative h-full flex flex-col z-10 p-4">
+        {/* Sprint Points cost indicator */}
+        <div className="absolute top-0 right-0 m-2 bg-gradient-to-br from-indigo-600 to-indigo-900 text-white font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-lg border border-indigo-400">
+          {card.storyPointsCost}
+        </div>
+        
         {/* Header with icon and type */}
         <div className="flex justify-center items-center mb-1">
           <span className="text-2xl">{getTypeIcon(card.type)}</span>

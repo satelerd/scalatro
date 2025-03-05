@@ -21,7 +21,7 @@ const initialState: GameState = {
   activeJokers: [],
   
   // Limitaciones de acciones por turno
-  maxCardsPerTurn: 2,
+  maxCardsPerTurn: 5,
   cardsPlayedThisTurn: 0,
   maxDiscardsPerTurn: 2,
   cardsDiscardedThisTurn: 0,
@@ -84,15 +84,17 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   playCard: (cardId: string) => {
     const { hand, chips, multiplier, cardsPlayedThisTurn, maxCardsPerTurn } = get();
     
-    // Verificamos si ya jugamos el máximo de cartas por turno
-    if (cardsPlayedThisTurn >= maxCardsPerTurn) {
-      console.log(`[LOG] Ya has jugado el máximo de ${maxCardsPerTurn} cartas este turno`);
-      return;
-    }
-    
     // Buscamos la carta en la mano
     const cardToPlay = hand.find(card => card.id === cardId);
     if (!cardToPlay) return;
+    
+    // Verificamos si hay suficientes Story Points disponibles para esta carta
+    const storyPointsCost = cardToPlay.storyPointsCost || 1; // Por defecto, 1 Story Point si no está definido
+    
+    if (cardsPlayedThisTurn + storyPointsCost > maxCardsPerTurn) {
+      console.log(`[LOG] No hay suficientes Story Points disponibles. Necesitas ${storyPointsCost}, quedan ${maxCardsPerTurn - cardsPlayedThisTurn}`);
+      return;
+    }
     
     // Calculamos nuevos chips y multiplicador
     const newChips = chips + cardToPlay.baseChips;
@@ -104,12 +106,12 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       discardPile: [...get().discardPile, cardToPlay],
       chips: newChips,
       multiplier: newMultiplier,
-      cardsPlayedThisTurn: cardsPlayedThisTurn + 1,
+      cardsPlayedThisTurn: cardsPlayedThisTurn + storyPointsCost,
     });
     
-    console.log(`[LOG] Carta jugada: ${cardToPlay.name}`);
+    console.log(`[LOG] Carta jugada: ${cardToPlay.name} (Coste: ${storyPointsCost} Story Points)`);
     console.log(`[LOG] Nuevos valores - Chips: ${newChips}, Multiplicador: ${newMultiplier}`);
-    console.log(`[LOG] Cartas jugadas este turno: ${cardsPlayedThisTurn + 1}/${maxCardsPerTurn}`);
+    console.log(`[LOG] Story Points usados este turno: ${cardsPlayedThisTurn + storyPointsCost}/${maxCardsPerTurn}`);
   },
   
   discardCard: (cardId: string) => {
@@ -241,22 +243,39 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     // Determine if we can visit the shop this turn
     const canVisitShop = benchmarkBeaten;
     
-    // Calculate new market share
+    // Calculate benchmark percentage
     const benchmarkPercentage = benchmarkBeaten ? 1 : score / currentBenchmark.targetScore;
-    const marketShareIncrease = benchmarkPercentage * 5; // Max 5% per turn
-    const newMarketShare = marketShare + marketShareIncrease;
     
-    // Calculate new money based on market share
-    const moneyEarned = Math.floor(marketShareIncrease * 2);
+    // Calculate market share change
+    let marketShareChange = 0;
+    let newMarketShare = marketShare;
+    
+    if (benchmarkBeaten) {
+      // Increase market share if benchmark is beaten
+      marketShareChange = 5; // 5% increase when beating benchmark
+      newMarketShare = marketShare + marketShareChange;
+      console.log(`[LOG] Market share increased by ${marketShareChange.toFixed(2)}% to ${newMarketShare.toFixed(2)}%`);
+    } else {
+      // Decrease market share if benchmark is not beaten
+      // The lower the benchmark percentage, the higher the decrease
+      marketShareChange = -Math.round((1 - benchmarkPercentage) * 3); // Max 3% decrease
+      newMarketShare = Math.max(0, marketShare + marketShareChange); // Ensure market share doesn't go below 0
+      console.log(`[LOG] Market share decreased by ${Math.abs(marketShareChange).toFixed(2)}% to ${newMarketShare.toFixed(2)}%`);
+    }
+    
+    // Calculate new money based on market share change (only positive change gives money)
+    const moneyEarned = marketShareChange > 0 ? Math.floor(marketShareChange * 2) : 0;
     const newMoney = money + moneyEarned + (benchmarkBeaten ? currentBenchmark.marketShareReward : 0);
     
-    console.log(`[LOG] Market share increased by ${marketShareIncrease.toFixed(2)}% to ${newMarketShare.toFixed(2)}%`);
-    console.log(`[LOG] Earned ${moneyEarned} coins from market share`);
+    if (marketShareChange > 0) {
+      console.log(`[LOG] Earned ${moneyEarned} coins from market share increase`);
+    }
     
     if (benchmarkBeaten) {
       console.log(`[LOG] Benchmark beaten! Earned ${currentBenchmark.marketShareReward} bonus coins`);
     } else {
       console.log(`[LOG] Benchmark progress: ${(benchmarkPercentage * 100).toFixed(2)}%`);
+      console.log(`[LOG] Market share decreased due to not meeting the benchmark`);
     }
     
     // Determine next benchmark
@@ -318,7 +337,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       cardsDiscardedThisTurn: 0,
       
       // Actualizamos límites de acciones basados en jokers
-      maxCardsPerTurn: 2 + cardBonus,
+      maxCardsPerTurn: 5 + cardBonus,
       maxDiscardsPerTurn: 2 + discardBonus,
       
       // Movemos cartas de la mano al descarte

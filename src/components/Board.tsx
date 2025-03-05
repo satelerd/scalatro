@@ -57,8 +57,8 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   const dropZones: DropZone[] = [
     {
       id: 'storyPoints',
-      title: 'Story Points',
-      description: 'Drag here to assign Story Points',
+      title: 'Sprint',
+      description: 'Drag here to assign to Sprint',
       action: playCard,
       color: 'bg-blue-600',
       position: 'left',
@@ -422,18 +422,6 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     <div ref={boardRef} className="bg-gray-900 p-4 rounded-lg shadow-lg overflow-hidden relative">
       <h2 className="text-xl font-bold text-white mb-4">Development Board</h2>
       
-      {/* Actions per turn stats */}
-      <div className="flex justify-between mb-4 bg-gray-800 p-3 rounded-lg">
-        <div className="text-center">
-          <div className="text-sm text-blue-400">Available Story Points</div>
-          <div className="font-bold text-white">{cardsPlayedThisTurn}/{maxCardsPerTurn}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-sm text-red-400">Backlog Space</div>
-          <div className="font-bold text-white">{cardsDiscardedThisTurn}/{maxDiscardsPerTurn}</div>
-        </div>
-      </div>
-      
       {/* Drop zones for dragging cards */}
       <div className="grid grid-cols-2 gap-4 mb-6 relative z-0">
         {dropZones.map(zone => {
@@ -446,6 +434,19 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
               zoneColor = draggingCard ? 'bg-blue-600/80' : 'bg-blue-600/30'; // Very soft blue for story points, more intense when dragging
             } else {
               zoneColor = draggingCard ? 'bg-red-600/80' : 'bg-red-600/30'; // Very soft red for backlog, more intense when dragging
+            }
+          }
+          
+          // Si estamos arrastrando una carta, podemos mostrar su costo
+          let costMessage = '';
+          if (draggingCard) {
+            const card = hand.find(c => c.id === draggingCard);
+            if (card && zone.id === 'storyPoints') {
+              if (cardsPlayedThisTurn + card.storyPointsCost <= maxCardsPerTurn) {
+                costMessage = `Cost: ${card.storyPointsCost} Sprint Points`;
+              } else {
+                costMessage = `Not enough Sprint Points! Need: ${card.storyPointsCost}, Have: ${maxCardsPerTurn - cardsPlayedThisTurn}`;
+              }
             }
           }
           
@@ -465,13 +466,48 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
                 scale: draggingCard && zone.isEnabled ? 1.02 : 1
               }}
             >
-              <div className="text-lg font-semibold text-white">{zone.title}</div>
+              {/* Icon for zone */}
+              <div className="text-2xl mb-1">
+                {zone.id === 'storyPoints' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                )}
+              </div>
+              
+              <div className="text-lg font-semibold text-white mb-1">
+                {zone.id === 'storyPoints' ? `Sprint ${useGameStore().round}` : zone.title}
+              </div>
               <div className="text-xs text-gray-300 text-center">{zone.description}</div>
+              
+              {/* Information about card being dragged */}
+              {draggingCard && costMessage && (
+                <div className={`text-xs mt-2 px-2 py-1 rounded text-center 
+                  ${cardsPlayedThisTurn + (hand.find(c => c.id === draggingCard)?.storyPointsCost || 0) <= maxCardsPerTurn 
+                    ? 'bg-green-800/70 text-green-200' 
+                    : 'bg-red-800/70 text-red-200'}`}>
+                  {costMessage.replace('Story Points', 'SP')}
+                </div>
+              )}
+              
               {!zone.isEnabled && (
-                <div className="text-xs text-gray-400 mt-1">
-                  (Limit reached: {zone.id === 'storyPoints' 
-                    ? `${cardsPlayedThisTurn}/${maxCardsPerTurn}` 
-                    : `${cardsDiscardedThisTurn}/${maxDiscardsPerTurn}`})
+                <div className="text-xs text-red-300 mt-1 bg-red-950/60 px-3 py-1 rounded-full">
+                  {zone.id === 'storyPoints'
+                    ? `Sprint capacity reached (${cardsPlayedThisTurn}/${maxCardsPerTurn} used)`
+                    : `Backlog full (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn} used)`}
+                </div>
+              )}
+              
+              {/* Show available points/slots when enabled */}
+              {zone.isEnabled && !draggingCard && (
+                <div className="text-xs text-gray-300 mt-2 bg-white/10 px-3 py-1 rounded-full">
+                  {zone.id === 'storyPoints'
+                    ? `${maxCardsPerTurn - cardsPlayedThisTurn} Sprint Points available`
+                    : `${maxDiscardsPerTurn - cardsDiscardedThisTurn} Backlog slots available`}
                 </div>
               )}
             </motion.div>

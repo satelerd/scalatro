@@ -66,6 +66,39 @@
   - [x] Generar IDs únicos para evitar conflictos de jokers duplicados
   - [x] Mejorar verificación de compra y aplicación de efectos
 
+## Internacionalización
+- [x] Traducir la interfaz al inglés
+  - [x] Componentes principales (Board, Shop, Card)
+  - [x] Textos del juego (instrucciones, descripciones)
+  - [x] Benchmarks y nombres de objetos
+  - [x] Mensajes del sistema y logs
+
+## Proyectos Actuales
+
+### Rediseño del Sistema de Story Points
+- [ ] Modificar el sistema de Story Points
+  - [ ] Aumentar la cantidad inicial de Story Points (de 2 a 5)
+  - [ ] Implementar que cada carta consuma una cantidad específica de Story Points
+  - [ ] Asignar costos de Story Points a las cartas según su color/tipo
+  - [ ] Crear mejoras en la tienda que aumenten el máximo de Story Points por sprint disponibles y otros de storypoints de backlog disponible
+- [ ] Mejorar la UI de Story Points
+  - [ ] Mover indicador de Story Points disponibles al área de Story Points
+  - [ ] Lo mismo opara backlog, Rediseñar área de Backlog para mostrar espacio disponible dentro del área
+  - [ ] Renombrar "Available Story Points" a "Max Story Points for this Sprint"
+  - [ ] Actualizar visualización para reflejar mejor el sistema renovado
+
+### Corrección de la Tienda
+- [ ] Identificar y corregir problemas en la funcionalidad de la tienda
+  - [ ] Depurar el proceso de compra para identificar fallos
+  - [ ] Verificar la correcta aplicación de efectos al comprar mejoras
+  - [ ] Asegurar que los jokers aparecen correctamente en el inventario
+  - [ ] Comprobar la correcta actualización de recursos después de compras
+- [ ] Implementar nuevas mejoras relacionadas con Story Points
+  - [ ] Crear objetos que aumenten el máximo de Story Points por sprint
+  - [ ] Añadir descuentos de Story Points para ciertos tipos de cartas
+  - [ ] Implementar bonificaciones especiales para el uso eficiente de Story Points
+- [ ] Implementar nuevas mejoras relacionadas con pre-training y test-time copute
+
 ## Pulido Visual y Experiencia
 - [ ] Mejorar animaciones
   - [ ] Efectos para combos grandes

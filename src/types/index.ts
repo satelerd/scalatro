@@ -25,6 +25,7 @@ export interface Card {
   baseMultiplier: number;
   description: string;
   image?: string;
+  storyPointsCost: number;
 }
 
 // Interfaz para un joker (GPU, datos, etc.)

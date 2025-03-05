@@ -12,7 +12,8 @@ const productCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 3,
     baseMultiplier: 1.0,
-    description: "A simple chat model with basic capabilities."
+    description: "A simple chat model with basic capabilities.",
+    storyPointsCost: 2  // Common PRODUCT: 2 Story Points
   },
   {
     id: uuidv4(),
@@ -21,7 +22,8 @@ const productCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 4,
     baseMultiplier: 1.0,
-    description: "Assistant that answers simple questions about texts."
+    description: "Assistant that answers simple questions about texts.",
+    storyPointsCost: 2  // Common PRODUCT: 2 Story Points
   },
   {
     id: uuidv4(),
@@ -30,7 +32,8 @@ const productCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 5,
     baseMultiplier: 1.0,
-    description: "Classifies text into predefined categories."
+    description: "Classifies text into predefined categories.",
+    storyPointsCost: 2  // Common PRODUCT: 2 Story Points
   },
   
   // Uncommon cards
@@ -41,7 +44,8 @@ const productCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 8,
     baseMultiplier: 1.1,
-    description: "Generates creative texts based on prompts."
+    description: "Generates creative texts based on prompts.",
+    storyPointsCost: 3  // Uncommon PRODUCT: 3 Story Points
   },
   {
     id: uuidv4(),
@@ -50,7 +54,8 @@ const productCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 10,
     baseMultiplier: 1.1,
-    description: "Virtual assistant that helps with daily tasks."
+    description: "Virtual assistant that helps with daily tasks.",
+    storyPointsCost: 3  // Uncommon PRODUCT: 3 Story Points
   },
   
   // Rare cards
@@ -61,7 +66,8 @@ const productCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 15,
     baseMultiplier: 1.2,
-    description: "Programming assistant that suggests code."
+    description: "Programming assistant that suggests code.",
+    storyPointsCost: 4  // Rare PRODUCT: 4 Story Points
   },
   {
     id: uuidv4(),
@@ -70,7 +76,8 @@ const productCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 20,
     baseMultiplier: 1.2,
-    description: "Creates realistic images from descriptions."
+    description: "Creates realistic images from descriptions.",
+    storyPointsCost: 4  // Rare PRODUCT: 4 Story Points
   },
   
   // Legendary cards
@@ -81,7 +88,8 @@ const productCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 30,
     baseMultiplier: 1.5,
-    description: "AI that can perform complex tasks without supervision."
+    description: "AI that can perform complex tasks without supervision.",
+    storyPointsCost: 5  // Legendary PRODUCT: 5 Story Points
   },
 ];
 
@@ -96,7 +104,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 1,
     baseMultiplier: 1.3,
-    description: "Basic API for text completion."
+    description: "Basic API for text completion.",
+    storyPointsCost: 1  // Common API: 1 Story Point
   },
   {
     id: uuidv4(),
@@ -105,7 +114,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 1,
     baseMultiplier: 1.4,
-    description: "Automatically summarizes long texts."
+    description: "Automatically summarizes long texts.",
+    storyPointsCost: 1  // Common API: 1 Story Point
   },
   
   // Uncommon cards
@@ -116,7 +126,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 2,
     baseMultiplier: 1.7,
-    description: "Converts text into vectors for semantic search."
+    description: "Converts text into vectors for semantic search.",
+    storyPointsCost: 2  // Uncommon API: 2 Story Points
   },
   {
     id: uuidv4(),
@@ -125,7 +136,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 2,
     baseMultiplier: 1.8,
-    description: "Analyzes sentiment and extracts key information."
+    description: "Analyzes sentiment and extracts key information.",
+    storyPointsCost: 2  // Uncommon API: 2 Story Points
   },
   
   // Rare cards
@@ -136,7 +148,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 3,
     baseMultiplier: 2.2,
-    description: "Integrates text, images, and audio into a single API."
+    description: "Integrates text, images, and audio into a single API.",
+    storyPointsCost: 3  // Rare API: 3 Story Points
   },
   
   // Legendary cards
@@ -147,7 +160,8 @@ const apiCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 5,
     baseMultiplier: 3.0,
-    description: "A API for all of them. Compatible with any LLM."
+    description: "A API for all of them. Compatible with any LLM.",
+    storyPointsCost: 4  // Legendary API: 4 Story Points
   },
 ];
 
@@ -162,7 +176,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 2,
     baseMultiplier: 1.2,
-    description: "Filters out basic inappropriate content."
+    description: "Filters out basic inappropriate content.",
+    storyPointsCost: 1  // Common FEATURE: 1 Story Point
   },
   {
     id: uuidv4(),
@@ -171,7 +186,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 3,
     baseMultiplier: 1.1,
-    description: "Allows giving simple instructions to the model."
+    description: "Allows giving simple instructions to the model.",
+    storyPointsCost: 1  // Common FEATURE: 1 Story Point
   },
   
   // Uncommon cards
@@ -182,7 +198,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 5,
     baseMultiplier: 1.4,
-    description: "The model remembers the previous conversation."
+    description: "The model remembers the previous conversation.",
+    storyPointsCost: 2  // Uncommon FEATURE: 2 Story Points
   },
   {
     id: uuidv4(),
@@ -191,7 +208,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 6,
     baseMultiplier: 1.5,
-    description: "Allows the model to access up-to-date information."
+    description: "Allows the model to access up-to-date information.",
+    storyPointsCost: 2  // Uncommon FEATURE: 2 Story Points
   },
   
   // Rare cards
@@ -202,7 +220,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 10,
     baseMultiplier: 1.8,
-    description: "The model adjusts its personality according to the context."
+    description: "The model adjusts its personality according to the context.",
+    storyPointsCost: 3  // Rare FEATURE: 3 Story Points
   },
   {
     id: uuidv4(),
@@ -211,7 +230,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 8,
     baseMultiplier: 2.0,
-    description: "Advanced filters to prevent malicious use."
+    description: "Advanced filters to prevent malicious use.",
+    storyPointsCost: 3  // Rare FEATURE: 3 Story Points
   },
   
   // Legendary cards
@@ -222,7 +242,8 @@ const featureCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 15,
     baseMultiplier: 2.5,
-    description: "The model can reason step-by-step through complex problems."
+    description: "The model can reason step-by-step through complex problems.",
+    storyPointsCost: 4  // Legendary FEATURE: 4 Story Points
   },
 ];
 
@@ -234,9 +255,10 @@ const teamCards: Card[] = [
     name: "Junior Developer",
     type: CardType.PRODUCT,
     rarity: CardRarity.COMMON,
-    baseChips: 6,
-    baseMultiplier: 1.0,
-    description: "STORY POINTS: Adds +1 Story Point per sprint. A developer with little experience but a lot of enthusiasm."
+    baseChips: 2,
+    baseMultiplier: 1.1,
+    description: "STORY POINTS: Adds +1 Story Point per sprint. A developer with little experience but a lot of enthusiasm.",
+    storyPointsCost: 1  // TEAM cards have lower cost as they help with Story Points
   },
   {
     id: uuidv4(),
@@ -245,7 +267,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 12,
     baseMultiplier: 1.2,
-    description: "STORY POINTS: Adds +2 Story Points per sprint. Developer with experience that produces high-quality code."
+    description: "STORY POINTS: Adds +2 Story Points per sprint. Developer with experience that produces high-quality code.",
+    storyPointsCost: 1  // Lower cost as it helps with Story Points
   },
   {
     id: uuidv4(),
@@ -254,7 +277,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 18,
     baseMultiplier: 1.5,
-    description: "STORY POINTS: Adds +3 Story Points per sprint. Leads the technical team and solves complex problems."
+    description: "STORY POINTS: Adds +3 Story Points per sprint. Leads the technical team and solves complex problems.",
+    storyPointsCost: 1  // Lower cost as it helps with Story Points
   },
   {
     id: uuidv4(),
@@ -263,7 +287,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 25,
     baseMultiplier: 2.0,
-    description: "STORY POINTS: Adds +4 Story Points per sprint. Expert in all necessary technologies for your product."
+    description: "STORY POINTS: Adds +4 Story Points per sprint. Expert in all necessary technologies for your product.",
+    storyPointsCost: 1  // Lower cost as it helps with Story Points
   },
   
   // Product Managers - Increase Backlog capacity
@@ -274,7 +299,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.COMMON,
     baseChips: 4,
     baseMultiplier: 1.3,
-    description: "BACKLOG: Adds +1 to your Backlog capacity. Responsible for prioritizing product features."
+    description: "BACKLOG: Adds +1 to your Backlog capacity. Responsible for prioritizing product features.",
+    storyPointsCost: 1  // Lower cost as it helps with Backlog
   },
   {
     id: uuidv4(),
@@ -283,7 +309,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 6,
     baseMultiplier: 1.6,
-    description: "BACKLOG: Adds +2 to your Backlog capacity. Facilitates meetings and eliminates team impediments."
+    description: "BACKLOG: Adds +2 to your Backlog capacity. Facilitates meetings and eliminates team impediments.",
+    storyPointsCost: 1  // Lower cost as it helps with Backlog
   },
   {
     id: uuidv4(),
@@ -292,7 +319,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 10,
     baseMultiplier: 1.9,
-    description: "BACKLOG: Adds +3 to your Backlog capacity. Defines the product vision and coordinates with stakeholders."
+    description: "BACKLOG: Adds +3 to your Backlog capacity. Defines the product vision and coordinates with stakeholders.",
+    storyPointsCost: 1  // Lower cost as it helps with Backlog
   },
   {
     id: uuidv4(),
@@ -301,7 +329,8 @@ const teamCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 15,
     baseMultiplier: 2.4,
-    description: "BACKLOG: Adds +4 to your Backlog capacity. Executive who coordinates all company products."
+    description: "BACKLOG: Adds +4 to your Backlog capacity. Executive who coordinates all company products.",
+    storyPointsCost: 1  // Lower cost as it helps with Backlog
   },
 ];
 
@@ -315,7 +344,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 12,
     baseMultiplier: 2.2,
-    description: "COMBO: +5 chips extra if you have a Product, API and another Feature in game."
+    description: "COMBO: +5 chips extra if you have a Product, API and another Feature in game.",
+    storyPointsCost: 3  // Rare FEATURE: 3 Story Points
   },
   
   // Combo 2: Complete stack - Bonus for having multiple products
@@ -326,7 +356,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 18,
     baseMultiplier: 1.5,
-    description: "COMBO: Doubles the multiplier if you have other 2 Products in game."
+    description: "COMBO: Doubles the multiplier if you have other 2 Products in game.",
+    storyPointsCost: 4  // Rare PRODUCT: 4 Story Points
   },
   
   // Combo 3: API integration - Bonus for having multiple APIs
@@ -337,7 +368,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 4,
     baseMultiplier: 2.5,
-    description: "COMBO: +50% to your multiplier if you have other 2 APIs in game."
+    description: "COMBO: +50% to your multiplier if you have other 2 APIs in game.",
+    storyPointsCost: 3  // Rare API: 3 Story Points
   },
   
   // Super powerful cards (legendary)
@@ -348,7 +380,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 50,
     baseMultiplier: 2.0,
-    description: "An AI that can solve any intellectual problem."
+    description: "An AI that can solve any intellectual problem.",
+    storyPointsCost: 5  // Legendary PRODUCT: 5 Story Points
   },
   {
     id: uuidv4(),
@@ -357,7 +390,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 10,
     baseMultiplier: 4.0,
-    description: "Massively parallel processing for ultra-fast inference."
+    description: "Massively parallel processing for ultra-fast inference.",
+    storyPointsCost: 4  // Legendary API: 4 Story Points
   },
   {
     id: uuidv4(),
@@ -366,7 +400,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.LEGENDARY,
     baseChips: 25,
     baseMultiplier: 3.0,
-    description: "Completely eliminates hallucinations. 100% accurate answers."
+    description: "Completely eliminates hallucinations. 100% accurate answers.",
+    storyPointsCost: 4  // Legendary FEATURE: 4 Story Points
   },
   
   // Team combo cards
@@ -377,7 +412,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.RARE,
     baseChips: 15,
     baseMultiplier: 2.0,
-    description: "COMBO: +2 Story Points and +2 Backlog capacity if you have at least 1 Dev and 1 Product Owner in game."
+    description: "COMBO: +2 Story Points and +2 Backlog capacity if you have at least 1 Dev and 1 Product Owner in game.",
+    storyPointsCost: 2  // Lower cost as it helps with Story Points
   },
   {
     id: uuidv4(),
@@ -386,7 +422,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 14,
     baseMultiplier: 1.5,
-    description: "STORY POINTS: Adds +2 Story Points per sprint. Two devs working together produce higher-quality code."
+    description: "STORY POINTS: Adds +2 Story Points per sprint. Two devs working together produce higher-quality code.",
+    storyPointsCost: 1  // Lower cost as it helps with Story Points
   },
   {
     id: uuidv4(),
@@ -395,7 +432,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 8,
     baseMultiplier: 1.6,
-    description: "BACKLOG: Adds +2 to your Backlog capacity. Technique for estimating the effort required for each task."
+    description: "BACKLOG: Adds +2 to your Backlog capacity. Technique for estimating the effort required for each task.",
+    storyPointsCost: 1  // Lower cost as it helps with Backlog
   },
   
   // Easter eggs and funny cards
@@ -406,7 +444,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 7,
     baseMultiplier: 1.7,
-    description: "Caffeine! +1 Story Point per sprint. Extra energy for the team developing the models."
+    description: "Caffeine! +1 Story Point per sprint. Extra energy for the team developing the models.",
+    storyPointsCost: 1  // Lower cost as it helps with Story Points
   },
   {
     id: uuidv4(),
@@ -415,7 +454,8 @@ const specialCards: Card[] = [
     rarity: CardRarity.UNCOMMON,
     baseChips: 5,
     baseMultiplier: 1.9,
-    description: "Basic manual of prompt engineering. Improves instructions."
+    description: "Basic manual of prompt engineering. Improves instructions.",
+    storyPointsCost: 2  // Uncommon FEATURE: 2 Story Points
   },
 ];
 
