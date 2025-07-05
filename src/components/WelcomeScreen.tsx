@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 interface WelcomeScreenProps {
@@ -44,7 +44,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         
         <div className="bg-gray-700/70 p-4 rounded-lg border border-amber-700/20">
           <h3 className="font-bold text-red-400 mb-2">Efficiency Multiplier</h3>
-          <p className="text-sm">Represents your team's efficiency during development.
+          <p className="text-sm">Represents your team&apos;s efficiency during development.
             Maximize your multiplier to get a higher score.</p>
         </div>
         

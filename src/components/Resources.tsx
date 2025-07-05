@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
-import { getAllBenchmarks } from '@/data/benchmarks';
 
 const Resources: React.FC = () => {
   const { 
@@ -13,9 +12,6 @@ const Resources: React.FC = () => {
     currentBenchmark,
     round,
   } = useGameStore();
-  
-  // Get all benchmarks to show progress
-  const allBenchmarks = getAllBenchmarks();
   
   // Calculate current progress towards the next benchmark
   const calculateBenchmarkProgress = () => {

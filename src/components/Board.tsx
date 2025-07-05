@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import Card from '@/components/Card';
@@ -141,6 +141,79 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     }
   }, [shouldDrawAfterTurn, hand.length, drawCard]);
   
+  // Function to handle the end of card dragging
+  const handleDragEnd = useCallback((cardId: string, info: { point: { x: number; y: number } }) => {
+    console.log(`[BOARD] End of card drag: ${cardId}`);
+    document.body.classList.remove('dragging-card');
+    
+    // Remove the global overlay
+    const overlay = document.getElementById('global-drag-overlay');
+    if (overlay) {
+      document.body.removeChild(overlay);
+    }
+    
+    // Get the coordinates of the drag end point
+    const endPoint = { x: info.point.x, y: info.point.y };
+    
+    // Check if the card has been dropped in any target zone
+    let cardPlayed = false;
+    
+    // Check the Story Points zone with a tolerance margin
+    if (storyPointsZoneRef.current) {
+      const rect = storyPointsZoneRef.current.getBoundingClientRect();
+      const margin = 30; // Increase tolerance margin even more
+      if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
+          endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
+        // The card has been dropped in the Story Points zone
+        if (cardsPlayedThisTurn < maxCardsPerTurn) {
+          console.log(`[BOARD] Card dropped in Story Points zone: ${cardId}`);
+          
+          // Play the card
+          playCard(cardId);
+          
+          // Calculate current score
+          const score = calculateScore();
+          console.log(`[BOARD] Card played. New score: ${score}`);
+          
+          // Show the result
+          const cardToPlay = hand.find(card => card.id === cardId);
+          if (cardToPlay) {
+            setPlayResult({ card: cardToPlay, score });
+          }
+          
+          cardPlayed = true;
+        } else {
+          console.log(`[BOARD] Cannot play more cards this turn (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
+        }
+      }
+    }
+    
+    // Check the Backlog zone with a tolerance margin
+    if (!cardPlayed && backlogZoneRef.current) {
+      const rect = backlogZoneRef.current.getBoundingClientRect();
+      const margin = 30; // Increase tolerance margin even more
+      if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
+          endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
+        // The card has been dropped in the Backlog zone
+        if (cardsDiscardedThisTurn < maxDiscardsPerTurn) {
+          console.log(`[BOARD] Card dropped in Backlog zone: ${cardId}`);
+          
+          // Discard the card
+          discardCard(cardId);
+          console.log(`[BOARD] Card discarded.`);
+          
+          // Clear any previous result
+          setPlayResult(null);
+        } else {
+          console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
+        }
+      }
+    }
+    
+    // Finally, clear the drag state
+    setDraggingCard(null);
+  }, [cardsPlayedThisTurn, maxCardsPerTurn, cardsDiscardedThisTurn, maxDiscardsPerTurn, playCard, calculateScore, hand, discardCard]);
+
   // Add global event handler to track cursor position
   useEffect(() => {
     const updateCursorPosition = (e: MouseEvent) => {
@@ -168,7 +241,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
       window.removeEventListener('mousemove', updateCursorPosition);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [draggingCard, isMouseDown, cursorPosition]);
+  }, [draggingCard, isMouseDown, cursorPosition, handleDragEnd]);
   
   // Function to handle the start of card dragging
   const handleDragStart = (cardId: string, e: React.MouseEvent) => {
