@@ -31,14 +31,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       </h2>
       
       <p className="text-gray-300 mb-8 text-lg">
-        In Scalatro, you'll lead your own development team in a race to complete projects and accumulate Story Points.
+        In Scalatro, you&apos;ll lead your own development team in a race to complete projects and accumulate Story Points.
         Assign Story Points and manage your backlog to beat benchmarks and increase your productivity.
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="bg-gray-700/70 p-4 rounded-lg border border-amber-700/20">
           <h3 className="font-bold text-blue-400 mb-2">Story Points</h3>
-          <p className="text-sm">Represent your team's capacity to develop features. 
+          <p className="text-sm">Represent your team&apos;s capacity to develop features. 
             More Story Points = greater potential for your product.</p>
         </div>
         

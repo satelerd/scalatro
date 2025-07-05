@@ -98,7 +98,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
       setIsInitialDraw(false);
       console.log('[BOARD] Initial hand fill completed');
     }
-  }, [isInitialDraw, drawCard]); // Add drawCard to dependencies
+  }, [isInitialDraw, drawCard, hand.length]); // Add hand.length to dependencies
   
   // New effect to check and maintain 3 cards in hand after each action
   useEffect(() => {
@@ -178,7 +178,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
           // Show the result
           const cardToPlay = hand.find(card => card.id === cardId);
           if (cardToPlay) {
-            setPlayResult({ card: cardToPlay, score });
+            console.log(`[BOARD] Card played: ${cardToPlay.name}, Score: ${score}`);
           }
           
           cardPlayed = true;
@@ -203,7 +203,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
           console.log(`[BOARD] Card discarded.`);
           
           // Clear any previous result
-          setPlayResult(null);
+          console.log('[BOARD] Card discarded successfully');
         } else {
           console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
         }
@@ -267,78 +267,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     document.body.appendChild(overlay);
   };
   
-  // Function to handle the end of card dragging
-  const handleDragEnd = (cardId: string, info: any) => {
-    console.log(`[BOARD] End of card drag: ${cardId}`);
-    document.body.classList.remove('dragging-card');
-    
-    // Remove the global overlay
-    const overlay = document.getElementById('global-drag-overlay');
-    if (overlay) {
-      document.body.removeChild(overlay);
-    }
-    
-    // Get the coordinates of the drag end point
-    const endPoint = { x: info.point.x, y: info.point.y };
-    
-    // Check if the card has been dropped in any target zone
-    let cardPlayed = false;
-    
-    // Check the Story Points zone with a tolerance margin
-    if (storyPointsZoneRef.current) {
-      const rect = storyPointsZoneRef.current.getBoundingClientRect();
-      const margin = 30; // Increase tolerance margin even more
-      if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
-          endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
-        // The card has been dropped in the Story Points zone
-        if (cardsPlayedThisTurn < maxCardsPerTurn) {
-          console.log(`[BOARD] Card dropped in Story Points zone: ${cardId}`);
-          
-          // Play the card
-          playCard(cardId);
-          
-          // Calculate current score
-          const score = calculateScore();
-          console.log(`[BOARD] Card played. New score: ${score}`);
-          
-          // Show the result
-          const cardToPlay = hand.find(card => card.id === cardId);
-          if (cardToPlay) {
-            setPlayResult({ card: cardToPlay, score });
-          }
-          
-          cardPlayed = true;
-        } else {
-          console.log(`[BOARD] Cannot play more cards this turn (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
-        }
-      }
-    }
-    
-    // Check the Backlog zone with a tolerance margin
-    if (!cardPlayed && backlogZoneRef.current) {
-      const rect = backlogZoneRef.current.getBoundingClientRect();
-      const margin = 30; // Increase tolerance margin even more
-      if (endPoint.x >= rect.left - margin && endPoint.x <= rect.right + margin &&
-          endPoint.y >= rect.top - margin && endPoint.y <= rect.bottom + margin) {
-        // The card has been dropped in the Backlog zone
-        if (cardsDiscardedThisTurn < maxDiscardsPerTurn) {
-          console.log(`[BOARD] Card dropped in Backlog zone: ${cardId}`);
-          
-          // Discard the card
-          discardCard(cardId);
-          console.log(`[BOARD] Card discarded.`);
-          
-          // Clear any previous result
-          setPlayResult(null);
-        } else {
-          console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
-        }
-      }
-    }
-    
-    // Finally, clear the drag state
-    setDraggingCard(null);
-  };
+
   
   // Handler to select a card (keep for compatibility)
   const handleSelectCard = (card: CardType) => {
@@ -352,78 +281,11 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     
     // Otherwise, select it
     setSelectedCard(card.id);
-    setPlayResult(null); // Clear previous result
+    console.log('[BOARD] Previous result cleared'); // Clear previous result
   };
   
-  // Handler to play the selected card (keep for compatibility)
-  const handlePlayCard = () => {
-    if (!selectedCard) return;
-    
-    console.log(`[BOARD] Attempting to play card: ${selectedCard}`);
-    
-    // Only allow playing if we haven't reached the limit
-    if (cardsPlayedThisTurn >= maxCardsPerTurn) {
-      console.log(`[BOARD] Cannot play more cards this turn (${cardsPlayedThisTurn}/${maxCardsPerTurn})`);
-      return;
-    }
-    
-    // Find the selected card in hand
-    const cardToPlay = hand.find(card => card.id === selectedCard);
-    if (!cardToPlay) {
-      console.log(`[BOARD] Error: Card not found in hand`);
-      return;
-    }
-    
-    // Play the card (pass the ID)
-    playCard(selectedCard);
-    
-    // Calculate current score
-    const score = calculateScore();
-    console.log(`[BOARD] Card played. New score: ${score}`);
-    
-    // Show the result
-    setPlayResult({ card: cardToPlay, score });
-    
-    // Clear the selection
-    setSelectedCard(null);
-  };
-
-  // State to show results of playing a card
-  const [playResult, setPlayResult] = useState<{card: CardType, score: number} | null>(null);
-  
-  // Function to show the result of playing a card
-  const showPlayResult = (card: CardType, score: number) => {
-    setPlayResult({card, score});
-    setTimeout(() => setPlayResult(null), 3000);
-  };
-
-  // Handler to discard the selected card (keep for compatibility)
-  const handleDiscardCard = () => {
-    if (!selectedCard) return;
-    
-    console.log(`[BOARD] Attempting to discard card: ${selectedCard}`);
-    
-    // Only allow discarding if we haven't reached the limit
-    if (cardsDiscardedThisTurn >= maxDiscardsPerTurn) {
-      console.log(`[BOARD] Cannot discard more cards this turn (${cardsDiscardedThisTurn}/${maxDiscardsPerTurn})`);
-      return;
-    }
-    
-    // Find the selected card in hand
-    const cardToDiscard = hand.find(card => card.id === selectedCard);
-    if (!cardToDiscard) {
-      console.log(`[BOARD] Error: Card not found in hand`);
-      return;
-    }
-    
-    // Discard the card (pass the ID)
-    discardCard(selectedCard);
-    console.log(`[BOARD] Card discarded.`);
-    
-    // Clear the selection
-    setSelectedCard(null);
-    setPlayResult(null);
-  };
+  // Determine if there are cards to draw
+  const canDrawCard = hand.length < 3; // Maximum 3 cards in hand
   
   // Handler to manually draw a card
   const handleDrawCard = () => {
@@ -439,7 +301,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   // Handler to end the turn
   const handleEndTurn = () => {
     console.log('[BOARD] Ending turn');
-    setPlayResult(null);
+    console.log('[BOARD] Previous result cleared');
     endTurn();
     // Activate the flag to automatically draw cards after ending the turn
     setShouldDrawAfterTurn(true);
@@ -454,15 +316,6 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
   // Get shop state
   const { canVisitShop } = useGameStore();
   
-  // Determine if there are cards to draw
-  const canDrawCard = hand.length < 3; // Maximum 3 cards in hand
-  
-  // Determine if we can play more cards
-  const canPlayMoreCards = cardsPlayedThisTurn < maxCardsPerTurn;
-  
-  // Determine if we can discard more cards
-  const canDiscardMoreCards = cardsDiscardedThisTurn < maxDiscardsPerTurn;
-  
   // Render the card currently being dragged in the body
   const renderDraggingCardPortal = () => {
     if (!draggingCard || !isMouseDown) return null;
@@ -472,12 +325,12 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
     
     // Calculate the position to center the card on the cursor
     const cardStyle = {
-      position: 'fixed' as 'fixed',
+      position: 'fixed' as const,
       left: `${cursorPosition.x}px`,
       top: `${cursorPosition.y}px`,
       transform: 'translate(-50%, -50%)',
       zIndex: 9999999,
-      pointerEvents: 'none' as 'none',
+      pointerEvents: 'none' as const,
     };
     
     return createPortal(
@@ -553,7 +406,7 @@ const Board: React.FC<BoardProps> = ({ onRestartGame }) => {
               </div>
               
               <div className="text-lg font-semibold text-white mb-1">
-                {zone.id === 'storyPoints' ? `Sprint ${useGameStore().round}` : zone.title}
+                {zone.id === 'storyPoints' ? `Sprint ${useGameStore.getState().round}` : zone.title}
               </div>
               <div className="text-xs text-gray-300 text-center">{zone.description}</div>
               
