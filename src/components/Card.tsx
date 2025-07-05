@@ -26,19 +26,7 @@ const getRarityColor = (rarity: CardRarity) => {
   }
 };
 
-// Function to get color based on card type
-const getTypeColor = (type: CardTypeEnum) => {
-  switch (type) {
-    case CardTypeEnum.PRODUCT:
-      return 'bg-red-700';
-    case CardTypeEnum.API:
-      return 'bg-blue-700';
-    case CardTypeEnum.FEATURE:
-      return 'bg-green-700';
-    default:
-      return 'bg-gray-700';
-  }
-};
+
 
 // Function to get icon based on card type
 const getTypeIcon = (type: CardTypeEnum) => {

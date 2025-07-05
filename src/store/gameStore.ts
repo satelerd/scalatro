@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { GameState, GameActions, Card, Joker } from '@/types';
+import { GameState, GameActions } from '@/types';
 import { getInitialDeck } from '@/data/cards';
 import { getShopJokers } from '@/data/jokers';
-import { getInitialBenchmark, getNextBenchmark } from '@/data/benchmarks';
+import { getInitialBenchmark } from '@/data/benchmarks';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define el estado inicial del juego

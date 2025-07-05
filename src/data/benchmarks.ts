@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Benchmark } from '@/types';
 
 // List of benchmarks available in the game
